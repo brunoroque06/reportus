@@ -1,0 +1,7 @@
+[tool.pyright]
+typeCheckingMode = "strict"
+venvPath = "."
+venv = ".venv"
+
+[tool.ruff]
+lint.ignore = ["E501", "E741"]

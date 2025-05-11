@@ -1,0 +1,32 @@
+on: [push]
+
+permissions: {}
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: pip install zizmor
+      - run: zizmor .github/workflows/main.yml
+
+  reportus:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.13
+          cache: pip
+      - run: pip install -r requirements.txt -r requirements-dev.txt
+      - run: ruff check --select I
+      - run: ruff check
+      - run: ruff format --check
+      - run: pyright
+      - run: pytest tests
+      - run: playwright install-deps && playwright install chromium
+      - run: pytest e2e
