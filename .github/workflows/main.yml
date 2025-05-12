@@ -12,7 +12,8 @@ jobs:
       - run: pip install zizmor
       - run: zizmor .github/workflows/main.yml
 
-  reportus:
+  build:
+    needs: ci
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
