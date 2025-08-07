@@ -11,6 +11,31 @@ Form = Literal["Classroom", "Home"]
 Version = Literal[1, 2]
 
 
+def forms(ver: Version) -> list[Form]:
+    if ver == 1:
+        return ["Classroom", "Home"]
+    return ["Home"]
+
+
+@dataclasses.dataclass(frozen=True)
+class Filer:
+    prep: str | None
+    name: str
+
+
+def filers(form: Form) -> list[Filer]:
+    if form == "Classroom":
+        return [
+            Filer("der", "LP"),
+            Filer("der", "BP"),
+        ]
+    return [
+        Filer("der", "Mutter"),
+        Filer(None, "Vater"),
+        Filer("den", "Eltern"),
+    ]
+
+
 def get_scores() -> dict[str, str]:
     return {
         "vis": "Vision",
@@ -73,7 +98,7 @@ typical = "Typical"
 def _report(
     asmt: datetime.date,
     form: Form,
-    filled: str,
+    filer: Filer,
     name: str | None,
     ver: Version,
     res: pl.DataFrame,
@@ -81,15 +106,16 @@ def _report(
     asmt_fmt = time.format_date(asmt, False)
     spm = f"SPM {ver}"
     rep = str_builder.StrBuilder()
+    fil = filer.name if filer.prep is None else f"{filer.prep} {filer.name}"
     if form == "Classroom":
         rep.append(f"Sensory Processing Measure ({spm}): Classroom Form")
         rep.append(
-            f"Fragebogen zur sensorischen Verarbeitung ausgefüllt von {filled} des Kindes ({asmt_fmt})"
+            f"Fragebogen zur sensorischen Verarbeitung ausgefüllt von {fil} des Kindes ({asmt_fmt})"
         )
     else:
         rep.append(f"Sensory Processing Measure ({spm}): Home Form")
         rep.append(
-            f"Elternfragebogen zur sensorischen Verarbeitung ausgefüllt von {filled} des Kindes ({asmt_fmt})"
+            f"Elternfragebogen zur sensorischen Verarbeitung ausgefüllt von {fil} des Kindes ({asmt_fmt})"
         )
         rep.append(
             "Die Fähigkeit, sensorische Reize zu verarbeiten, beeinflusst die motorischen und selbstregulativen Fähigkeiten eines Kindes sowie sein soziales Verhalten."
@@ -165,7 +191,7 @@ def process(
     asmt: datetime.date,
     form: Form,
     ver: Version,
-    filled: str,
+    filer: Filer,
     name: str | None,
     raw: dict[str, int],
 ) -> tuple[pl.DataFrame, str]:
@@ -209,4 +235,4 @@ def process(
         schema=["id", "raw", "t", "percentile", "interpretive", "level"],
     )
 
-    return res, _report(asmt, form, filled, name, ver, res)
+    return res, _report(asmt, form, filer, name, ver, res)

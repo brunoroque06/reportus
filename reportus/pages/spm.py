@@ -20,11 +20,12 @@ def ver1():
 
 
 with cols[2]:
-    form: spm.Form = st.selectbox("Form", ("Classroom", "Home") if ver1() else ("Home"))  # type: ignore
+    form: spm.Form = st.selectbox("Form", spm.forms(ver))  # type: ignore
 with cols[3]:
-    filled = st.selectbox(
+    filer = st.selectbox(
         "Filled by",
-        ("Km", "Kv", "Ke") if form == "Home" else ("LP", "BP"),
+        spm.filers(form),
+        format_func=lambda f: f.name,
     )
 
 scores = spm.get_scores()
@@ -49,7 +50,7 @@ if not ver1():
     with cols[0]:
         name = st.text_input("Name")
 
-res, rep = spm.process(asmt, form, ver, filled, name, raw)
+res, rep = spm.process(asmt, form, ver, filer, name, raw)
 
 ui.text(rep)
 
