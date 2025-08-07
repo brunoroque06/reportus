@@ -91,7 +91,7 @@ def test_data(ver: spm.Version):
 def test_spm(form: spm.Form, ver: spm.Version, raw: dict[str, int], ts: dict[str, int]):
     today = datetime.date.today()
 
-    res, rep = spm.process(today, form, ver, "", "", raw)
+    res, rep = spm.process(today, form, ver, spm.Filer(None, "ignore"), "", raw)
 
     for i, t in ts.items():
         assert res.filter(pl.col("id") == i).select("t").item() == t
