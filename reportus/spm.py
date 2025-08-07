@@ -84,12 +84,12 @@ def _report(
     if form == "Classroom":
         rep.append(f"Sensory Processing Measure ({spm}): Classroom Form")
         rep.append(
-            f"Fragebogen zur sensorischen Verarbeitung ausgefüllt von Kinders {filled} ({asmt_fmt})"
+            f"Fragebogen zur sensorischen Verarbeitung ausgefüllt von {filled} des Kindes ({asmt_fmt})"
         )
     else:
         rep.append(f"Sensory Processing Measure ({spm}): Home Form")
         rep.append(
-            f"Elternfragebogen zur sensorischen Verarbeitung ausgefüllt von {filled} ({asmt_fmt})"
+            f"Elternfragebogen zur sensorischen Verarbeitung ausgefüllt von {filled} des Kindes ({asmt_fmt})"
         )
         rep.append(
             "Die Fähigkeit, sensorische Reize zu verarbeiten, beeinflusst die motorischen und selbstregulativen Fähigkeiten eines Kindes sowie sein soziales Verhalten."
