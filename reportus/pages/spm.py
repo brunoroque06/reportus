@@ -20,7 +20,7 @@ def ver1():
 
 
 with cols[2]:
-    form: spm.Form = st.selectbox("Form", spm.forms(ver))  # type: ignore
+    form = st.selectbox("Form", spm.forms(ver))
 with cols[3]:
     filer = st.selectbox(
         "Filled by",
