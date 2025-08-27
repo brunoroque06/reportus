@@ -79,7 +79,7 @@ def table(df: pd.DataFrame | style.Styler, title: str | None = None):
     if title:
         st.text(title)
     st.dataframe(  # type: ignore
-        df, use_container_width=True, column_config={"level": {"hidden": True}}
+        df, width=True, column_config={"level": {"hidden": True}}
     )
 
 
