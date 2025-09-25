@@ -5,3 +5,4 @@ venv = ".venv"
 
 [tool.ruff]
 lint.ignore = ["E501", "E741"]
+
