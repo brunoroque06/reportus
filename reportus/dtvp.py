@@ -3,7 +3,6 @@ import datetime
 import itertools
 
 import polars as pl
-from dateutil import relativedelta
 
 from reportus import perf, str_builder, time
 
@@ -21,7 +20,7 @@ class Data:
             & (pl.col("raw_max") >= raw)
         )
 
-    def get_rs(self, i: str, age: relativedelta.relativedelta, raw: int):
+    def get_rs(self, i: str, age: time.Delta, raw: int):
         months = age.years * 12 + age.months
         return self.rs.filter(
             (pl.col("id") == i)
@@ -58,7 +57,7 @@ def validate():
     for i, y, m, r in itertools.product(
         get_tests().keys(), range(4, 13), range(0, 12, 2), range(0, 194)
     ):
-        row = data.get_rs(i, relativedelta.relativedelta(years=y, months=m), r)
+        row = data.get_rs(i, time.Delta(years=y, months=m), r)
         assert row.select("scaled").item() > 0
         assert row.select("percentile").item() >= 0
 
@@ -140,7 +139,7 @@ def to_age(a: str) -> str:
 
 
 def process(
-    age: relativedelta.relativedelta,
+    age: time.Delta,
     raw: dict[str, int],
     asmt: datetime.date | None = None,
 ) -> tuple[pl.DataFrame, pl.DataFrame, str]:

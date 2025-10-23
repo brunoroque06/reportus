@@ -1,6 +1,5 @@
-from dateutil import relativedelta
-
 from reportus import dtvp
+from reportus.time import Delta
 
 
 def test_data():
@@ -8,7 +7,7 @@ def test_data():
 
 
 def test_dtvp():
-    age = relativedelta.relativedelta(years=6, months=11)
+    age = Delta(years=6, months=11)
 
     raw = {"eh": 108, "co": 11, "fg": 52, "vc": 10, "fc": 32}
 

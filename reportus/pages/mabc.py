@@ -2,14 +2,14 @@ import typing
 
 import pandas as pd
 import streamlit as st
-from dateutil import relativedelta
 
 from reportus import mabc, ui
+from reportus.time import Delta
 
 ui.header("MABC")
 
 
-def display_age(a: relativedelta.relativedelta) -> ui.Color:
+def display_age(a: Delta) -> ui.Color:
     if a.years < 7:
         return "red"
     if a.years < 11:

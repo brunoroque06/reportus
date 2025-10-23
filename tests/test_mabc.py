@@ -1,8 +1,8 @@
 import polars as pl
 import pytest
-from dateutil import relativedelta
 
 from reportus import mabc
+from reportus.time import Delta
 
 
 def test_data():
@@ -13,7 +13,7 @@ def test_data():
     ("age", "raw", "comp_res", "agg_res"),
     [
         (
-            relativedelta.relativedelta(years=6),
+            Delta(years=6),
             {
                 "hg11": 17,
                 "hg12": 29,
@@ -48,7 +48,7 @@ def test_data():
             },
         ),
         (
-            relativedelta.relativedelta(years=9),
+            Delta(years=9),
             {
                 "hg11": 28,
                 "hg12": 25,
@@ -86,7 +86,7 @@ def test_data():
             },
         ),
         (
-            relativedelta.relativedelta(years=12),
+            Delta(years=12),
             {
                 "hg11": 17,
                 "hg12": 23,
@@ -126,7 +126,7 @@ def test_data():
     ],
 )
 def test_mabc(
-    age: relativedelta.relativedelta,
+    age: Delta,
     raw: dict[str, int | None],
     comp_res: dict[str, int],
     agg_res: dict[str, int],

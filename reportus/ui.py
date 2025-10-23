@@ -3,8 +3,9 @@ import typing
 
 import pandas as pd
 import streamlit as st
-from dateutil import relativedelta
 from pandas.io.formats import style
+
+from reportus.time import Delta, minus_delta, to_delta
 
 
 def header(title: str):
@@ -21,8 +22,8 @@ Color = typing.Literal["blue", "green", "red"]
 def dates(
     min_years: int,
     max_years: int,
-    disp: typing.Callable[[relativedelta.relativedelta], Color] = lambda _: "blue",
-) -> tuple[datetime.date, datetime.date, relativedelta.relativedelta]:
+    disp: typing.Callable[[Delta], Color] = lambda _: "blue",
+) -> tuple[datetime.date, datetime.date, Delta]:
     col1, col2, col3 = st.columns([1, 1, 2])
 
     today = datetime.date.today()
@@ -32,15 +33,14 @@ def dates(
     with col2:
         birth = date_input(
             "Birthday",
-            asmt
-            - relativedelta.relativedelta(
-                years=min_years + int((max_years - min_years) / 2)
+            minus_delta(
+                asmt, Delta(years=min_years + int((max_years - min_years) / 2))
             ),
-            max_value=asmt - relativedelta.relativedelta(years=min_years),
-            min_value=asmt - relativedelta.relativedelta(years=max_years - 1, days=364),
+            max_value=minus_delta(asmt, Delta(min_years)),
+            min_value=minus_delta(asmt, Delta(years=max_years - 1, days=364)),
         )
 
-    age = relativedelta.relativedelta(asmt, birth)
+    age = to_delta(birth, asmt)
 
     with col3:
         st.text(" ")

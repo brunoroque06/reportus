@@ -3,7 +3,6 @@ import datetime
 import itertools
 
 import polars as pl
-from dateutil import relativedelta
 
 from reportus import dtvp, perf, time
 
@@ -13,7 +12,7 @@ class Data:
     std: pl.DataFrame
     sums: pl.DataFrame
 
-    def get_std(self, i: str, age: relativedelta.relativedelta, r: int):
+    def get_std(self, i: str, age: time.Delta, r: int):
         return self.std.filter(
             (pl.col("id") == i)
             & (pl.col("age_min") <= age.years)
@@ -40,7 +39,7 @@ def validate():
     raws = range(0, 109)
 
     for i, a, r in itertools.product(ids, ages, raws):
-        row = data.get_std(i, relativedelta.relativedelta(years=a), r)
+        row = data.get_std(i, time.Delta(years=a), r)
         assert row.select("standard").item() > 0
         assert row.select("percentile").item() >= 0
 
@@ -100,7 +99,7 @@ def report(asmt: datetime.date, sub: pl.DataFrame, comp: pl.DataFrame) -> str:
 
 
 def process(
-    age: relativedelta.relativedelta,
+    age: time.Delta,
     raw: dict[str, int],
     asmt: datetime.date | None = None,
 ) -> tuple[pl.DataFrame, pl.DataFrame, str]:

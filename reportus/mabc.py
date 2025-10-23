@@ -5,7 +5,6 @@ import math
 import typing
 
 import polars as pl
-from dateutil import relativedelta
 
 from reportus import perf, str_builder, time
 
@@ -44,11 +43,7 @@ def validate():
         data.map_i.select("age_max").max().item(),
     )
     for a in ages:
-        ids = [
-            i
-            for lst in get_comps(relativedelta.relativedelta(years=a)).values()
-            for i in lst
-        ]
+        ids = [i for lst in get_comps(time.Delta(years=a)).values() for i in lst]
         raws = range(0, 122)
 
         for i, r in itertools.product(ids, raws):
@@ -63,7 +58,7 @@ def validate():
         assert row.select("percentile").item() > 0
 
 
-def get_comps(age: relativedelta.relativedelta) -> dict[str, list[str]]:
+def get_comps(age: time.Delta) -> dict[str, list[str]]:
     return {
         "Handgeschicklichkeit": ["hg11", "hg12", "hg2", "hg3"],
         "Ballfertigkeiten": (
@@ -148,7 +143,7 @@ def level(std: int) -> typing.Literal[0, 1, 2, 3]:
 
 
 def process(
-    age: relativedelta.relativedelta,
+    age: time.Delta,
     raw: dict[str, typing.Optional[int]],
     asmt: datetime.date | None = None,
     hand: str = "Right",
@@ -177,9 +172,7 @@ def process(
     return comp_res, agg_res, report(asmt, age, hand, agg_res)
 
 
-def report(
-    asmt: datetime.date, age: relativedelta.relativedelta, hand: str, agg: pl.DataFrame
-) -> str:
+def report(asmt: datetime.date, age: time.Delta, hand: str, agg: pl.DataFrame) -> str:
     if age.years < 7:
         group = "3-6"
     elif age.years < 11:
