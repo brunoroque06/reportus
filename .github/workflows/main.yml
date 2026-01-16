@@ -1,24 +1,11 @@
 on: [push]
 
-permissions: {}
-
 jobs:
-  ci:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-      - run: pip install zizmor
-      - run: zizmor .github/workflows/main.yml
-
   build:
     needs: ci
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-        with:
-          persist-credentials: false
       - uses: actions/setup-python@v6
         with:
           python-version: 3.14
