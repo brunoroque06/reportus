@@ -36,13 +36,13 @@ class Data:
 
 @ui.cache
 def _load() -> Data:
-    ra = pl.read_csv("data/dtvp-raw-ageeq.csv")
-    rs = pl.read_csv("data/dtvp-raw-sca.csv")
+    ra = pl.read_csv("public/dtvp-raw-ageeq.csv")
+    rs = pl.read_csv("public/dtvp-raw-sca.csv")
     rs = rs.with_columns(
         age_min=pl.col("age_min_y") * 12 + pl.col("age_min_m"),
         age_max=pl.col("age_max_y") * 12 + pl.col("age_max_m"),
     )
-    sp = pl.read_csv("data/dtvp-sca-per.csv")
+    sp = pl.read_csv("public/dtvp-sca-per.csv")
     return Data(ra, rs, sp)
 
 

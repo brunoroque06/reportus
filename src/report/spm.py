@@ -64,13 +64,13 @@ class Data:
 
 @ui.cache
 def _load() -> Data:
-    classroom = pl.read_csv("data/spm-classroom.csv")
+    classroom = pl.read_csv("public/spm-classroom.csv")
     classroom = classroom.with_columns(pl.lit("classroom1").alias("type"))
 
-    home = pl.read_csv("data/spm-home.csv")
+    home = pl.read_csv("public/spm-home.csv")
     home = home.with_columns(pl.lit("home1").alias("type"))
 
-    home2 = pl.read_csv("data/spm2-home.csv")
+    home2 = pl.read_csv("public/spm2-home.csv")
     home2 = home2.with_columns(pl.lit("home2").alias("type"))
 
     return Data(pl.concat([classroom, home, home2]))

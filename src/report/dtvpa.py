@@ -28,8 +28,8 @@ class Data:
 
 @ui.cache
 def _load() -> Data:
-    std = pl.read_csv("data/dtvpa-std.csv")
-    sums = pl.read_csv("data/dtvpa-sum.csv")
+    std = pl.read_csv("public/dtvpa-std.csv")
+    sums = pl.read_csv("public/dtvpa-sum.csv")
     return Data(std, sums)
 
 

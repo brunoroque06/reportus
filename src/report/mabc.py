@@ -31,8 +31,8 @@ class Data:
 
 @ui.cache
 def _load() -> Data:
-    map_i = pl.read_csv("data/mabc-i.csv")
-    map_t = pl.read_csv("data/mabc-t.csv")
+    map_i = pl.read_csv("public/mabc-i.csv")
+    map_t = pl.read_csv("public/mabc-t.csv")
     return Data(map_i, map_t)
 
 
