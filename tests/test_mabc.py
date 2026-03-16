@@ -1,8 +1,8 @@
 import polars as pl
 import pytest
 
-from reportus import mabc
-from reportus.time import Delta
+from src import mabc
+from src.time import Delta
 
 
 def test_data():

@@ -5,7 +5,7 @@ from typing import Literal
 
 import polars as pl
 
-from reportus import string, time, ui
+from src import string, time, ui
 
 Form = Literal["Classroom", "Home"]
 Version = Literal[1, 2]

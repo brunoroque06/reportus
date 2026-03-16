@@ -1,5 +1,5 @@
-from reportus import dtvpa
-from reportus.time import Delta
+from src import dtvpa
+from src.time import Delta
 
 
 def test_data():

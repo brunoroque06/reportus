@@ -4,7 +4,7 @@ import itertools
 
 import polars as pl
 
-from reportus import string, time, ui
+from src import string, time, ui
 
 
 @dataclasses.dataclass(frozen=True)

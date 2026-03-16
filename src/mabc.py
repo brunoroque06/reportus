@@ -6,7 +6,7 @@ import typing
 
 import polars as pl
 
-from reportus import ui, string, time
+from src import ui, string, time
 
 
 @dataclasses.dataclass(frozen=True)

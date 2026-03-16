@@ -5,7 +5,7 @@ import pandas as pd
 import streamlit as st
 from pandas.io.formats import style
 
-from reportus.time import Delta, minus_delta, to_delta
+from src.time import Delta, minus_delta, to_delta
 
 
 def header(title: str):

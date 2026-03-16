@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 
-from reportus.time import Delta, minus_delta, to_delta
+from src.time import Delta, minus_delta, to_delta
 
 
 @pytest.mark.parametrize(

@@ -3,7 +3,7 @@ import datetime
 import polars as pl
 import pytest
 
-from reportus import spm
+from src import spm
 
 
 @pytest.mark.parametrize(("ver"), [1, 2])
