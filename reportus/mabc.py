@@ -6,7 +6,7 @@ import typing
 
 import polars as pl
 
-from reportus import perf, str_builder, time
+from reportus import perf, str, time
 
 
 @dataclasses.dataclass(frozen=True)
@@ -70,7 +70,7 @@ def get_comps(age: time.Delta) -> dict[str, list[str]]:
             else (
                 ["bl11", "bl12", "bl2", "bl31", "bl32"]
                 if age.years < 11
-                else ["bl1", "bl2", "bl31", "bl32"]
+                else ["bl1", "bl2", "bl31", ""bl32"]
             )
         ),
     }
