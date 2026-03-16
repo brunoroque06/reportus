@@ -6,7 +6,7 @@ import typing
 
 import polars as pl
 
-from reportus import perf, str, time
+from reportus import ui, str, time
 
 
 @dataclasses.dataclass(frozen=True)
@@ -29,7 +29,7 @@ class Data:
         )
 
 
-@perf.cache
+@ui.cache
 def _load() -> Data:
     map_i = pl.read_csv("data/mabc-i.csv")
     map_t = pl.read_csv("data/mabc-t.csv")

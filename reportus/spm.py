@@ -5,7 +5,7 @@ from typing import Literal
 
 import polars as pl
 
-from reportus import perf, str, time
+from reportus import ui, str, time
 
 Form = Literal["Classroom", "Home"]
 Version = Literal[1, 2]
@@ -62,7 +62,7 @@ class Data:
         )
 
 
-@perf.cache
+@ui.cache
 def _load() -> Data:
     classroom = pl.read_csv("data/spm-classroom.csv")
     classroom = classroom.with_columns(pl.lit("classroom1").alias("type"))

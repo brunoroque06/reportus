@@ -85,3 +85,6 @@ def table(df: pd.DataFrame | style.Styler, title: str | None = None):
 
 def text(txt: str):
     st.code(txt, language=None, wrap_lines=True)
+
+
+cache = st.cache_data

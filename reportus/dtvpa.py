@@ -4,7 +4,7 @@ import itertools
 
 import polars as pl
 
-from reportus import dtvp, perf, time
+from reportus import dtvp, ui, time
 
 
 @dataclasses.dataclass(frozen=True)
@@ -25,7 +25,7 @@ class Data:
         return self.sums.filter((pl.col("id") == i) & (pl.col("sum") == su))
 
 
-@perf.cache
+@ui.cache
 def _load() -> Data:
     std = pl.read_csv("data/dtvpa-std.csv")
     sums = pl.read_csv("data/dtvpa-sum.csv")

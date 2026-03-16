@@ -4,7 +4,7 @@ import itertools
 
 import polars as pl
 
-from reportus import perf, str, time
+from reportus import ui, str, time
 
 
 @dataclasses.dataclass(frozen=True)
@@ -34,7 +34,7 @@ class Data:
         return self.sp.filter((pl.col("id") == i) & (pl.col("scaled") == s))
 
 
-@perf.cache
+@ui.cache
 def _load() -> Data:
     ra = pl.read_csv("data/dtvp-raw-ageeq.csv")
     rs = pl.read_csv("data/dtvp-raw-sca.csv")
