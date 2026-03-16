@@ -8,7 +8,7 @@ st.set_page_config(
 
 
 def page(file: str, title: str):
-    return st.Page(path.join("reportus", "pages", file), title=title)
+    return st.Page(path.join("src", "page", file), title=title)
 
 
 pages = [
