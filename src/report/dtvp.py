@@ -224,22 +224,22 @@ def process(
 def report(asmt: datetime.date, sub: pl.DataFrame, comp: pl.DataFrame) -> str:
     rep = string.StrBuilder()
 
-    rep.append(
+    rep.add_line(
         f"Developmental Test of Visual Perception (DTVP-3) - {time.format_date(asmt)}"
     )
-    rep.append()
+    rep.add_line()
 
     for n, i in [
         ("Visuomotorische Integration", 0),
         ("Visuelle Wahrnehmung mit reduzierter motorischer Reaktion", 1),
         ("Globale visuelle Wahrnehmung", 2),
     ]:
-        rep.append(
+        rep.add_line(
             f"{n}: PR {to_pr(comp['percentile'][i])} - {lvl_idx(comp['index'][i], True)[0]}"
         )
 
-    rep.append()
-    rep.append("Subtests:")
+    rep.add_line()
+    rep.add_line("Subtests:")
 
     for n, i in [
         ("Augen-Hand-Koordination", 0),
@@ -248,7 +248,7 @@ def report(asmt: datetime.date, sub: pl.DataFrame, comp: pl.DataFrame) -> str:
         ("Gesaltschliessen", 3),
         ("Formkonstanz", 4),
     ]:
-        rep.append(
+        rep.add_line(
             f"{n}: {to_age(sub['age_eq'][i])} J ({lvl_sca(sub['scaled'][i], True)[0]})"
         )
 

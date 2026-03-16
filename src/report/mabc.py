@@ -200,17 +200,17 @@ def report(asmt: datetime.date, age: time.Delta, hand: str, agg: pl.DataFrame) -
 
     rep = string.StrBuilder()
 
-    rep.append(
+    rep.add_line(
         f"Movement Assessment Battery for Children 2nd Edition (M-ABC 2) - {time.format_date(asmt)}"
     )
-    rep.append(f"Protokollbogen Altersgruppe: {group} Jahre")
-    rep.append()
-    rep.append(f"Handgeschicklichkeit: PR {perc('hg')} - {level_str(std('hg'))}")
-    rep.append(f"Händigkeit: {'Rechts' if hand == 'Right' else 'Links'}")
-    rep.append(f"Ballfertigkeit: PR {perc('bf')} - {level_str(std('bf'))}")
-    rep.append(f"Balance: PR {perc('bl')} - {level_str(std('bl'))}")
-    rep.append()
-    rep.append(
+    rep.add_line(f"Protokollbogen Altersgruppe: {group} Jahre")
+    rep.add_line()
+    rep.add_line(f"Handgeschicklichkeit: PR {perc('hg')} - {level_str(std('hg'))}")
+    rep.add_line(f"Händigkeit: {'Rechts' if hand == 'Right' else 'Links'}")
+    rep.add_line(f"Ballfertigkeit: PR {perc('bf')} - {level_str(std('bf'))}")
+    rep.add_line(f"Balance: PR {perc('bl')} - {level_str(std('bl'))}")
+    rep.add_line()
+    rep.add_line(
         f"Gesamttestwert: PR {tot.select('percentile').item()} - {level_str(tot.select('standard').item())}"
     )
 

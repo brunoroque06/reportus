@@ -108,16 +108,16 @@ def _report(
     rep = string.StrBuilder()
     fil = filer.name if filer.prep is None else f"{filer.prep} {filer.name}"
     if form == "Classroom":
-        rep.append(f"Sensory Processing Measure ({spm}): Classroom Form")
-        rep.append(
+        rep.add_line(f"Sensory Processing Measure ({spm}): Classroom Form")
+        rep.add_line(
             f"Fragebogen zur sensorischen Verarbeitung ausgefüllt von {fil} des Kindes ({asmt_fmt})"
         )
     else:
-        rep.append(f"Sensory Processing Measure ({spm}): Home Form")
-        rep.append(
+        rep.add_line(f"Sensory Processing Measure ({spm}): Home Form")
+        rep.add_line(
             f"Elternfragebogen zur sensorischen Verarbeitung ausgefüllt von {fil} des Kindes ({asmt_fmt})"
         )
-        rep.append(
+        rep.add_line(
             "Die Fähigkeit, sensorische Reize zu verarbeiten, beeinflusst die motorischen und selbstregulativen Fähigkeiten eines Kindes sowie sein soziales Verhalten."
         )
 
@@ -143,25 +143,25 @@ def _report(
 
     for s in scores:
         if not s:
-            rep.append()
+            rep.add_line()
             continue
-        rep.append(
+        rep.add_line(
             f'{s[1]}: PR {res.filter(pl.col("id") == s[0]).select("percentile").item()} - "{get_int(s[0])}"'
         )
 
     if ver == 2:
-        rep.append()
+        rep.add_line()
         if get_int("st") == typical:
-            rep.append(
+            rep.add_line(
                 f'{name} sensorisches Profil liegt im Bereich "Typical" und ist somit unauffällig.'
             )
         else:
-            rep.append("Zusammenfassung der sensorischen Verarbeitung des Kindes:")
-            rep.append()
-            rep.append(
+            rep.add_line("Zusammenfassung der sensorischen Verarbeitung des Kindes:")
+            rep.add_line()
+            rep.add_line(
                 f'{name} sensorisches Profil liegt im Bereich "Moderate Difficulties" (Gesamttestwert). Es zeigen sich Auffälligkeiten in mehreren sensorischen Systemen, welche sich in folgenden beobachtbaren Verhaltensweisen widerspiegeln:',
             )
-            rep.append()
+            rep.add_line()
             scores = [
                 ("Sehen", "vis"),
                 ("Hören", "hea"),
@@ -175,14 +175,14 @@ def _report(
                 return "unauffällig" if get_int(k) == typical else ""
 
             for l, k in scores:
-                rep.append(f"{l}: {summary_score(k)}")
+                rep.add_line(f"{l}: {summary_score(k)}")
 
             if get_int("pln") != typical or get_int("soc") != typical:
-                rep.append()
-                rep.append("Auswirkungen auf den Alltag:")
-                rep.append()
-                rep.append("Planung und Ideenfindung: " + summary_score("pln"))
-                rep.append("Soziale Teilhabe: " + summary_score("soc"))
+                rep.add_line()
+                rep.add_line("Auswirkungen auf den Alltag:")
+                rep.add_line()
+                rep.add_line("Planung und Ideenfindung: " + summary_score("pln"))
+                rep.add_line("Soziale Teilhabe: " + summary_score("soc"))
 
     return str(rep)
 
