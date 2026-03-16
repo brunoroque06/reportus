@@ -6,7 +6,7 @@ import typing
 
 import polars as pl
 
-from reportus import ui, str, time
+from reportus import ui, string, time
 
 
 @dataclasses.dataclass(frozen=True)
@@ -70,7 +70,7 @@ def get_comps(age: time.Delta) -> dict[str, list[str]]:
             else (
                 ["bl11", "bl12", "bl2", "bl31", "bl32"]
                 if age.years < 11
-                else ["bl1", "bl2", "bl31", ""bl32"]
+                else ["bl1", "bl2", "bl31", "bl32"]
             )
         ),
     }
@@ -198,7 +198,7 @@ def report(asmt: datetime.date, age: time.Delta, hand: str, agg: pl.DataFrame) -
 
     tot = agg.filter(pl.col("id") == "total")
 
-    rep = str_builder.StrBuilder()
+    rep = string.StrBuilder()
 
     rep.append(
         f"Movement Assessment Battery for Children 2nd Edition (M-ABC 2) - {time.format_date(asmt)}"

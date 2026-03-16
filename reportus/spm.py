@@ -5,7 +5,7 @@ from typing import Literal
 
 import polars as pl
 
-from reportus import ui, str, time
+from reportus import string, time, ui
 
 Form = Literal["Classroom", "Home"]
 Version = Literal[1, 2]
@@ -105,7 +105,7 @@ def _report(
 ) -> str:
     asmt_fmt = time.format_date(asmt, False)
     spm = f"SPM {ver}"
-    rep = str.StrBuilder()
+    rep = string.StrBuilder()
     fil = filer.name if filer.prep is None else f"{filer.prep} {filer.name}"
     if form == "Classroom":
         rep.append(f"Sensory Processing Measure ({spm}): Classroom Form")

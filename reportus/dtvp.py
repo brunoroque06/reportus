@@ -4,7 +4,7 @@ import itertools
 
 import polars as pl
 
-from reportus import ui, str, time
+from reportus import string, time, ui
 
 
 @dataclasses.dataclass(frozen=True)
@@ -222,7 +222,7 @@ def process(
 
 
 def report(asmt: datetime.date, sub: pl.DataFrame, comp: pl.DataFrame) -> str:
-    rep = str.StrBuilder()
+    rep = string.StrBuilder()
 
     rep.append(
         f"Developmental Test of Visual Perception (DTVP-3) - {time.format_date(asmt)}"
