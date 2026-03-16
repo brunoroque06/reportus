@@ -14,6 +14,6 @@ jobs:
       - run: ruff check
       - run: ruff format --check
       - run: pyright
-      - run: pytest tests
+      - run: pytest test
       - run: playwright install-deps && playwright install chromium
       - run: pytest e2e
