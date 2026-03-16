@@ -2,7 +2,8 @@ import typing
 
 import streamlit as st
 
-from src import dtvp, dtvpa, ui
+from src import ui
+from src.report import dtvp, dtvpa
 
 
 def page(rep: typing.Literal["dtvp3", "dtvpa"]) -> None:

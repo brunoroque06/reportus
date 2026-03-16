@@ -3,7 +3,8 @@ import typing
 import pandas as pd
 import streamlit as st
 
-from src import mabc, ui
+from src import ui
+from src.report import mabc
 from src.time import Delta
 
 ui.header("MABC")

@@ -1,7 +1,7 @@
 import polars as pl
 import pytest
 
-from src import mabc
+from src.report import mabc
 from src.time import Delta
 
 

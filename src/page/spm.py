@@ -2,7 +2,8 @@ import datetime
 
 import streamlit as st
 
-from src import spm, ui
+from src import ui
+from src.report import spm
 
 ui.header("SPM")
 
