@@ -55,7 +55,8 @@ res, rep = spm.process(asmt, form, ver, filer, name, raw)
 
 ui.text(rep)
 
-res = res.to_pandas().set_index("id")  # type: ignore
+# res = res.to_pandas().set_index("id")  # type: ignore
 
-res = res.style.format({"t": "{:.0f}"})  # type: ignore
-ui.table(res)
+# res = res.style.format({"t": "{:.0f}"})  # type: ignore
+# ui.table(res)
+st.dataframe(res.rows)

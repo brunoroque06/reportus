@@ -2,73 +2,95 @@ import dataclasses
 import datetime
 import itertools
 
-import polars as pl
-
-from src import string, time, ui
+from src import string, table, time
 
 
 @dataclasses.dataclass(frozen=True)
-class Data:
-    ra: pl.DataFrame
-    rs: pl.DataFrame
-    sp: pl.DataFrame
-
-    def get_ra(self, i: str, raw: int):
-        return self.ra.filter(
-            (pl.col("id") == i)
-            & (pl.col("raw_min") <= raw)
-            & (pl.col("raw_max") >= raw)
-        )
-
-    def get_rs(self, i: str, age: time.Delta, raw: int):
-        months = age.years * 12 + age.months
-        return self.rs.filter(
-            (pl.col("id") == i)
-            & (pl.col("age_min") <= months)
-            & (pl.col("age_max") >= months)
-            & (pl.col("raw_min") <= raw)
-            & (pl.col("raw_max") >= raw)
-        )
-
-    def get_sp(self, i: str, s: int):
-        return self.sp.filter((pl.col("id") == i) & (pl.col("scaled") == s))
+class RaRow:
+    id: str
+    raw_min: int
+    raw_max: float
+    age_eq_y: int
+    age_eq_m: int
 
 
-@ui.cache
-def _load() -> Data:
-    ra = pl.read_csv("public/dtvp-raw-ageeq.csv")
-    rs = pl.read_csv("public/dtvp-raw-sca.csv")
-    rs = rs.with_columns(
-        age_min=pl.col("age_min_y") * 12 + pl.col("age_min_m"),
-        age_max=pl.col("age_max_y") * 12 + pl.col("age_max_m"),
-    )
-    sp = pl.read_csv("public/dtvp-sca-per.csv")
-    return Data(ra, rs, sp)
+@dataclasses.dataclass(frozen=True)
+class RsRow:
+    id: str
+    age_min_y: int
+    age_min_m: int
+    age_max_y: int
+    age_max_m: int
+    raw_min: int
+    raw_max: float
+    scaled: int
+    percentile: int
+
+
+@dataclasses.dataclass(frozen=True)
+class SpRow:
+    id: str
+    scaled: int
+    percentile: int
+    index: int
+
+
+def _get_ra(data: table.Table[RaRow], i: str, raw: int) -> RaRow:
+    return data.filter(
+        id=i,
+        raw_min=lambda v: v <= raw,
+        raw_max=lambda v: v >= raw,
+    ).item()
+
+
+def _get_rs(data: table.Table[RsRow], i: str, age: time.Delta, raw: int) -> RsRow:
+    months = age.years * 12 + age.months
+    matching = [
+        r
+        for r in data.rows
+        if r.id == i
+        and r.raw_min <= raw
+        and r.raw_max >= raw
+        and (r.age_min_y * 12 + r.age_min_m) <= months
+        and (r.age_max_y * 12 + r.age_max_m) >= months
+    ]
+    return matching[0]
+
+
+def _get_sp(data: table.Table[SpRow], i: str, s: int) -> SpRow:
+    return data.filter(id=i, scaled=s).item()
+
+
+def _load() -> tuple[table.Table[RaRow], table.Table[RsRow], table.Table[SpRow]]:
+    ra = table.read_csv("public/dtvp-raw-ageeq.csv", RaRow)
+    rs = table.read_csv("public/dtvp-raw-sca.csv", RsRow)
+    sp = table.read_csv("public/dtvp-sca-per.csv", SpRow)
+    return ra, rs, sp
 
 
 def validate():
-    data = _load()
+    ra, rs, sp = _load()
 
     for i, r in itertools.product(get_tests().keys(), range(0, 188)):
-        row = data.get_ra(i, r)
-        assert row.select("age_eq_y").item() >= 0
-        assert row.select("age_eq_m").item() >= 0
+        row = _get_ra(ra, i, r)
+        assert row.age_eq_y >= 0
+        assert row.age_eq_m >= 0
 
     for i, y, m, r in itertools.product(
         get_tests().keys(), range(4, 13), range(0, 12, 2), range(0, 194)
     ):
-        row = data.get_rs(i, time.Delta(years=y, months=m), r)
-        assert row.select("scaled").item() > 0
-        assert row.select("percentile").item() >= 0
+        row = _get_rs(rs, i, time.Delta(years=y, months=m), r)
+        assert row.scaled > 0
+        assert row.percentile >= 0
 
     for i, su in itertools.chain(
         itertools.product(["vmi"], range(2, 41)),
         itertools.product(["mrvp"], range(3, 60)),
         itertools.product(["gvp"], range(5, 99)),
     ):
-        row = data.get_sp(i, su)
-        assert row.select("percentile").item() >= 0
-        assert row.select("index").item() > 0
+        row = _get_sp(sp, i, su)
+        assert row.percentile >= 0
+        assert row.index > 0
 
 
 def get_tests() -> dict[str, str]:
@@ -138,90 +160,124 @@ def to_age(a: str) -> str:
     return a
 
 
+@dataclasses.dataclass(frozen=True)
+class SubRow:
+    id: str
+    label: str
+    raw: int
+    age_eq: str
+    percentile: str
+    scaled: int
+    descriptive: str
+    level: int
+
+
+@dataclasses.dataclass(frozen=True)
+class CompRow:
+    id: str
+    sum_scaled: int
+    percentile: str
+    descriptive: str
+    level: int
+    index: int
+
+
 def process(
     age: time.Delta,
     raw: dict[str, int],
     asmt: datetime.date | None = None,
-) -> tuple[pl.DataFrame, pl.DataFrame, str]:
+) -> tuple[table.Table[SubRow], table.Table[CompRow], str]:
     if asmt is None:
         asmt = datetime.date.today()
 
-    data = _load()
+    ra, rs, sp = _load()
 
     tests = get_tests()
 
     def age_eq(k: str) -> str:
-        row = data.get_ra(k, raw[k])
-        years = row.select("age_eq_y").item()
-        months = row.select("age_eq_m").item()
-        return f"{years};{months}"
+        row = _get_ra(ra, k, raw[k])
+        return f"{row.age_eq_y};{row.age_eq_m}"
 
-    def scaled(k: str):
-        row = data.get_rs(k, age, raw[k])
-        per = row.select("percentile").item()
-        sca = row.select("scaled").item()
-        return [per, sca, *lvl_sca(sca)]
+    def scaled(k: str) -> tuple[int, int, str, int]:
+        row = _get_rs(rs, k, age, raw[k])
+        return (row.percentile, row.scaled, *lvl_sca(row.scaled))
 
-    sub = pl.DataFrame(
-        [[k, v, raw[k], age_eq(k), *scaled(k)] for k, v in tests.items()],
-        orient="row",
-        schema=[
-            "id",
-            "label",
-            "raw",
-            "age_eq",
-            "percentile",
-            "scaled",
-            "descriptive",
-            "level",
-        ],
-    )
+    sub_rows: list[SubRow] = []
+    for k, v in tests.items():
+        per, sca, desc, lvl = scaled(k)
+        sub_rows.append(
+            SubRow(
+                id=k,
+                label=v,
+                raw=raw[k],
+                age_eq=age_eq(k),
+                percentile=str(per),
+                scaled=sca,
+                descriptive=desc,
+                level=lvl,
+            )
+        )
+
+    sub = table.Table(sub_rows)
+
+    def get_sub_scaled(sid: str) -> int:
+        return sub.filter(id=sid).item().scaled
 
     comps = [
         (
             "vmi",
             "Visual-Motor Integration",
-            sub.filter(pl.col("id") == "eh").select("scaled").item()
-            + sub.filter(pl.col("id") == "co").select("scaled").item(),
+            get_sub_scaled("eh") + get_sub_scaled("co"),
         ),
         (
             "mrvp",
             "Motor-reduced Visual Perception",
-            sub.filter(pl.col("id") == "fg").select("scaled").item()
-            + sub.filter(pl.col("id") == "vc").select("scaled").item()
-            + sub.filter(pl.col("id") == "fc").select("scaled").item(),
+            get_sub_scaled("fg") + get_sub_scaled("vc") + get_sub_scaled("fc"),
         ),
         (
             "gvp",
             "General Visual Perception",
-            sub.select("scaled").sum().item(),
+            sum(r.scaled for r in sub.rows),
         ),
     ]
 
-    def get_sp(i: str, s: int):
-        row = data.get_sp(i, s)
-        return [
-            row.select("percentile").item(),
-            *lvl_idx(row.select("index").item()),
-            row.select("index").item(),
-        ]
+    comp_rows: list[CompRow] = []
+    for k, l, v in comps:
+        row = _get_sp(sp, k, v)
+        desc, lvl = lvl_idx(row.index)
+        comp_rows.append(
+            CompRow(
+                id=l,
+                sum_scaled=v,
+                percentile=str(row.percentile),
+                descriptive=desc,
+                level=lvl,
+                index=row.index,
+            )
+        )
 
-    comp = pl.DataFrame(
-        [[l, v, *get_sp(k, v)] for k, l, v in comps],
-        orient="row",
-        schema=["id", "sum_scaled", "percentile", "descriptive", "level", "index"],
-    )
+    comp = table.Table(comp_rows)
 
     rep = report(asmt, sub, comp)
 
-    sub = sub.with_columns(pl.col("age_eq").map_elements(to_age, pl.String))
-    sub = sub.with_columns(pl.col("percentile").map_elements(to_pr, pl.String))
-    comp = comp.with_columns(pl.col("percentile").map_elements(to_pr, pl.String))
+    sub = table.Table(
+        [
+            dataclasses.replace(
+                r, age_eq=to_age(r.age_eq), percentile=to_pr(int(r.percentile))
+            )
+            for r in sub.rows
+        ]
+    )
+    comp = table.Table(
+        [dataclasses.replace(r, percentile=to_pr(int(r.percentile))) for r in comp.rows]
+    )
 
     return sub, comp, rep
 
 
-def report(asmt: datetime.date, sub: pl.DataFrame, comp: pl.DataFrame) -> str:
+def report(
+    asmt: datetime.date, sub: table.Table[SubRow], comp: table.Table[CompRow]
+) -> str:
     rep = string.StrBuilder()
 
     rep.add_line(
@@ -234,8 +290,9 @@ def report(asmt: datetime.date, sub: pl.DataFrame, comp: pl.DataFrame) -> str:
         ("Visuelle Wahrnehmung mit reduzierter motorischer Reaktion", 1),
         ("Globale visuelle Wahrnehmung", 2),
     ]:
+        c = comp.rows[i]
         rep.add_line(
-            f"{n}: PR {to_pr(comp['percentile'][i])} - {lvl_idx(comp['index'][i], True)[0]}"
+            f"{n}: PR {to_pr(int(c.percentile))} - {lvl_idx(c.index, True)[0]}"
         )
 
     rep.add_line()
@@ -248,8 +305,7 @@ def report(asmt: datetime.date, sub: pl.DataFrame, comp: pl.DataFrame) -> str:
         ("Gesaltschliessen", 3),
         ("Formkonstanz", 4),
     ]:
-        rep.add_line(
-            f"{n}: {to_age(sub['age_eq'][i])} J ({lvl_sca(sub['scaled'][i], True)[0]})"
-        )
+        s = sub.rows[i]
+        rep.add_line(f"{n}: {to_age(s.age_eq)} J ({lvl_sca(s.scaled, True)[0]})")
 
     return str(rep)

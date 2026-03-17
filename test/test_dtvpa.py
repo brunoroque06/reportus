@@ -12,12 +12,12 @@ def test_dtvpa():
         {"co": 13, "fg": 4, "vse": 60, "vc": 12, "vsp": 29, "fc": 6},
     )
 
-    assert sub["raw"].eq([13, 4, 60, 12, 29, 6]).all()  # type: ignore
-    assert sub["%ile"].eq(["25", "9", "9", "25", "9", "16"]).all()  # type: ignore
-    assert sub["standard"].eq([8, 6, 6, 8, 6, 7]).all()  # type: ignore
+    assert [r.raw for r in sub.rows] == [13, 4, 60, 12, 29, 6]
+    assert [r.pile for r in sub.rows] == ["25", "9", "9", "25", "9", "16"]
+    assert [r.standard for r in sub.rows] == [8, 6, 6, 8, 6, 7]
 
-    assert comp["sum_standard"].eq([41, 21, 20]).all()  # type: ignore
-    assert comp["index"].eq([78, 81, 79]).all()  # type: ignore
-    assert comp["%ile"].eq(["7", "10", "8"]).all()  # type: ignore
+    assert [r.sum_standard for r in comp.rows] == [41, 21, 20]
+    assert [r.index for r in comp.rows] == [78, 81, 79]
+    assert [r.pile for r in comp.rows] == ["7", "10", "8"]
 
     assert len(rep) > 0

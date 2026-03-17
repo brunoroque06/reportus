@@ -2,55 +2,67 @@ import dataclasses
 import datetime
 import itertools
 
-import polars as pl
-
-from src import ui, time
+from src import table, time
 from src.report import dtvp
 
 
 @dataclasses.dataclass(frozen=True)
-class Data:
-    std: pl.DataFrame
-    sums: pl.DataFrame
-
-    def get_std(self, i: str, age: time.Delta, r: int):
-        return self.std.filter(
-            (pl.col("id") == i)
-            & (pl.col("age_min") <= age.years)
-            & (pl.col("age_max") > age.years)
-            & (pl.col("raw_min") <= r)
-            & (pl.col("raw_max") >= r)
-        )
-
-    def get_sum(self, i: str, su: int):
-        return self.sums.filter((pl.col("id") == i) & (pl.col("sum") == su))
+class StdRow:
+    id: str
+    age_min: int
+    age_max: float
+    raw_min: int
+    raw_max: float
+    standard: int
+    percentile: int
 
 
-@ui.cache
-def _load() -> Data:
-    std = pl.read_csv("public/dtvpa-std.csv")
-    sums = pl.read_csv("public/dtvpa-sum.csv")
-    return Data(std, sums)
+@dataclasses.dataclass(frozen=True)
+class SumRow:
+    id: str
+    sum: int
+    index: int
+    percentile: int
+
+
+def _get_std(data: table.Table[StdRow], i: str, age: time.Delta, r: int) -> StdRow:
+    return data.filter(
+        id=i,
+        age_min=lambda v: v <= age.years,
+        age_max=lambda v: v > age.years,
+        raw_min=lambda v: v <= r,
+        raw_max=lambda v: v >= r,
+    ).item()
+
+
+def _get_sum(data: table.Table[SumRow], i: str, su: int) -> SumRow:
+    return data.filter(id=i, sum=su).item()
+
+
+def _load() -> tuple[table.Table[StdRow], table.Table[SumRow]]:
+    std = table.read_csv("public/dtvpa-std.csv", StdRow)
+    sums = table.read_csv("public/dtvpa-sum.csv", SumRow)
+    return std, sums
 
 
 def validate():
-    data = _load()
+    std, sums = _load()
     ids = get_tests().keys()
     ages = range(11, 18)
     raws = range(0, 109)
 
     for i, a, r in itertools.product(ids, ages, raws):
-        row = data.get_std(i, time.Delta(years=a), r)
-        assert row.select("standard").item() > 0
-        assert row.select("percentile").item() >= 0
+        row = _get_std(std, i, time.Delta(years=a), r)
+        assert row.standard > 0
+        assert row.percentile >= 0
 
     for i, su in itertools.chain(
         itertools.product(["sum3"], range(3, 61)),
         itertools.product(["sum6"], range(6, 116)),
     ):
-        row = data.get_sum(i, su)
-        assert row.select("index").item() > 0
-        assert row.select("percentile").item() >= 0
+        row = _get_sum(sums, i, su)
+        assert row.index > 0
+        assert row.percentile >= 0
 
 
 def get_tests() -> dict[str, str]:
@@ -64,14 +76,37 @@ def get_tests() -> dict[str, str]:
     }
 
 
-def report(asmt: datetime.date, sub: pl.DataFrame, comp: pl.DataFrame) -> str:
+@dataclasses.dataclass(frozen=True)
+class SubRow:
+    id: str
+    label: str
+    raw: int
+    pile: str
+    standard: int
+    description: str
+    level: int
+
+
+@dataclasses.dataclass(frozen=True)
+class CompRow:
+    id: str
+    sum_standard: int
+    index: int
+    pile: str
+    description: str
+    level: int
+
+
+def report(
+    asmt: datetime.date, sub: table.Table[SubRow], comp: table.Table[CompRow]
+) -> str:
     return "\n".join(
         [
             f"Developmental Test of Visual Perception - Adolescent and Adult (DTVP-A) - ({time.format_date(asmt)})",
             "",
         ]
         + [
-            f"{n}: PR {comp.filter(pl.col('id') == i).select('%ile').item()} - {dtvp.lvl_idx(comp.filter(pl.col('id') == i).select('index').item(), True)[0]}"
+            f"{n}: PR {comp.filter(id=i).item().pile} - {dtvp.lvl_idx(comp.filter(id=i).item().index, True)[0]}"
             for n, i in [
                 ("Visuomotorische Integration", "Visual-Motor Integration (VMII)"),
                 (
@@ -86,7 +121,7 @@ def report(asmt: datetime.date, sub: pl.DataFrame, comp: pl.DataFrame) -> str:
             "Subtests:",
         ]
         + [
-            f"{n}: PR {sub.filter(pl.col('id') == i).select('%ile').item()} - {dtvp.lvl_sca(sub.filter(pl.col('id') == i).select('standard').item(), True)[0]}"
+            f"{n}: PR {sub.filter(id=i).item().pile} - {dtvp.lvl_sca(sub.filter(id=i).item().standard, True)[0]}"
             for n, i in [
                 ("Abzeichnen", "co"),
                 ("Figur-Grund", "fg"),
@@ -103,64 +138,71 @@ def process(
     age: time.Delta,
     raw: dict[str, int],
     asmt: datetime.date | None = None,
-) -> tuple[pl.DataFrame, pl.DataFrame, str]:
+) -> tuple[table.Table[SubRow], table.Table[CompRow], str]:
     if asmt is None:
         asmt = datetime.date.today()
 
-    data = _load()
+    std, sums = _load()
 
     tests = get_tests()
 
-    def get_std(k: str, r: int):
-        row = data.get_std(k, age, r)
-        per = row.select("percentile").item()
-        std = row.select("standard").item()
-        return [
-            dtvp.to_pr(per),
-            std,
-            *dtvp.lvl_sca(std),
-        ]
+    sub_rows: list[SubRow] = []
+    for k, v in tests.items():
+        row = _get_std(std, k, age, raw[k])
+        desc, lvl = dtvp.lvl_sca(row.standard)
+        sub_rows.append(
+            SubRow(
+                id=k,
+                label=v,
+                raw=raw[k],
+                pile=dtvp.to_pr(row.percentile),
+                standard=row.standard,
+                description=desc,
+                level=lvl,
+            )
+        )
 
-    sub = pl.DataFrame(
-        [[k, v, raw[k], *get_std(k, raw[k])] for k, v in tests.items()],
-        schema=["id", "label", "raw", "%ile", "standard", "description", "level"],
-        orient="row",
-    )
+    sub = table.Table(sub_rows)
+
+    def get_sub_std(sid: str) -> int:
+        return sub.filter(id=sid).item().standard
 
     comps = [
         (
             "gvpi",
             "General Visual Perception (GVPI)",
-            sub.select("standard").sum().item(),
+            sum(r.standard for r in sub.rows),
             "sum6",
         ),
         (
             "mrpi",
             "Motor-Reduced Visual Perception (MRPI)",
-            sub.filter(pl.col("id") == "fg").select("standard").item()
-            + sub.filter(pl.col("id") == "vc").select("standard").item()
-            + sub.filter(pl.col("id") == "fc").select("standard").item(),
+            get_sub_std("fg") + get_sub_std("vc") + get_sub_std("fc"),
             "sum3",
         ),
         (
             "vmii",
             "Visual-Motor Integration (VMII)",
-            sub.filter(pl.col("id") == "co").select("standard").item()
-            + sub.filter(pl.col("id") == "vse").select("standard").item()
-            + sub.filter(pl.col("id") == "vsp").select("standard").item(),
+            get_sub_std("co") + get_sub_std("vse") + get_sub_std("vsp"),
             "sum3",
         ),
     ]
 
-    def get_comp(i: str, su: int):
-        row = data.get_sum(i, su)
-        idx = row.select("index").item()
-        return [idx, dtvp.to_pr(row.select("percentile").item()), *dtvp.lvl_idx(idx)]
+    comp_rows: list[CompRow] = []
+    for _, l, su, i in comps:
+        row = _get_sum(sums, i, su)
+        desc, lvl = dtvp.lvl_idx(row.index)
+        comp_rows.append(
+            CompRow(
+                id=l,
+                sum_standard=su,
+                index=row.index,
+                pile=dtvp.to_pr(row.percentile),
+                description=desc,
+                level=lvl,
+            )
+        )
 
-    comp = pl.DataFrame(
-        [[l, su, *get_comp(i, su)] for _, l, su, i in comps],
-        orient="row",
-        schema=["id", "sum_standard", "index", "%ile", "description", "level"],
-    )
+    comp = table.Table(comp_rows)
 
     return sub, comp, report(asmt, sub, comp)

@@ -3,9 +3,7 @@ import datetime
 import itertools
 from typing import Literal
 
-import polars as pl
-
-from src import string, time, ui
+from src import string, table, time
 
 Form = Literal["Classroom", "Home"]
 Version = Literal[1, 2]
@@ -50,30 +48,29 @@ def get_scores() -> dict[str, str]:
 
 
 @dataclasses.dataclass(frozen=True)
-class Data:
-    data: pl.DataFrame
-
-    def get_row(self, form: str, i: str, r: int):
-        return self.data.filter(
-            (pl.col("type") == form)
-            & (pl.col("id") == i)
-            & (pl.col("raw_min") <= r)
-            & (pl.col("raw_max") >= r)
-        )
+class CsvRow:
+    id: str
+    raw_min: int
+    raw_max: float
+    percentile: int
+    t: int
+    type: str
 
 
-@ui.cache
-def _load() -> Data:
-    classroom = pl.read_csv("public/spm-classroom.csv")
-    classroom = classroom.with_columns(pl.lit("classroom1").alias("type"))
+def _load() -> table.Table[CsvRow]:
+    classroom = table.read_csv("public/spm-classroom.csv", CsvRow)
+    home = table.read_csv("public/spm-home.csv", CsvRow)
+    home2 = table.read_csv("public/spm2-home.csv", CsvRow)
+    return classroom.concat(home).concat(home2)
 
-    home = pl.read_csv("public/spm-home.csv")
-    home = home.with_columns(pl.lit("home1").alias("type"))
 
-    home2 = pl.read_csv("public/spm2-home.csv")
-    home2 = home2.with_columns(pl.lit("home2").alias("type"))
-
-    return Data(pl.concat([classroom, home, home2]))
+def _get_row(data: table.Table[CsvRow], form: str, i: str, r: int) -> CsvRow:
+    return data.filter(
+        type=form,
+        id=i,
+        raw_min=lambda v: v <= r,
+        raw_max=lambda v: v >= r,
+    ).item()
 
 
 def validate(ver: Version):
@@ -86,13 +83,22 @@ def validate(ver: Version):
     raws = range(0, 171)
 
     for t, i, r in itertools.product(types, ids, raws):
-        row = data.get_row(t + str(ver), i, r)
-        assert row.is_empty() is False
-        for c in ["percentile", "t"]:
-            assert row.select(c).item() > 0
+        row = _get_row(data, t + str(ver), i, r)
+        assert row.percentile > 0
+        assert row.t > 0
 
 
 typical = "Typical"
+
+
+@dataclasses.dataclass(frozen=True)
+class ResultRow:
+    id: str
+    raw: int
+    t: int | None
+    percentile: str | None
+    interpretive: str | None
+    level: int | None
 
 
 def _report(
@@ -101,7 +107,7 @@ def _report(
     filer: Filer,
     name: str | None,
     ver: Version,
-    res: pl.DataFrame,
+    res: table.Table[ResultRow],
 ) -> str:
     asmt_fmt = time.format_date(asmt, False)
     spm = f"SPM {ver}"
@@ -138,15 +144,15 @@ def _report(
     if ver == 2:
         scores.insert(4, ("t&s", "Taste and Smell"))
 
-    def get_int(s: str) -> str:
-        return res.filter(pl.col("id") == s).select("interpretive").item()
+    def get_int(s: str) -> str | None:
+        return res.filter(id=s).item().interpretive
 
     for s in scores:
         if not s:
             rep.add_line()
             continue
         rep.add_line(
-            f'{s[1]}: PR {res.filter(pl.col("id") == s[0]).select("percentile").item()} - "{get_int(s[0])}"'
+            f'{s[1]}: PR {res.filter(id=s[0]).item().percentile} - "{get_int(s[0])}"'
         )
 
     if ver == 2:
@@ -194,7 +200,7 @@ def process(
     filer: Filer,
     name: str | None,
     raw: dict[str, int],
-) -> tuple[pl.DataFrame, str]:
+) -> tuple[table.Table[ResultRow], str]:
     data = _load()
 
     def ver1():
@@ -216,23 +222,24 @@ def process(
             return ("Some Problems" if ver1() else "Moderate Difficulties", 1)
         return ("Definite Dysfunction" if ver1() else "Severe Difficulties", 2)
 
-    def form_row(i: str, r: int):
+    def form_row(i: str, r: int) -> ResultRow:
         if ver1() and i == "t&s":
-            return ["t&s", r, None, None, None, None]
+            return ResultRow(
+                id="t&s", raw=r, t=None, percentile=None, interpretive=None, level=None
+            )
         key = f"{form.lower()}{ver}"
-        row = data.get_row(key, i, r)
-        return [
-            i,
-            r,
-            row.select("t").item(),
-            per(row.select("percentile").item()),
-            *inter(row.select("t").item()),
-        ]
+        row = _get_row(data, key, i, r)
+        t_val = row.t
+        interpretive, level = inter(t_val)
+        return ResultRow(
+            id=i,
+            raw=r,
+            t=t_val,
+            percentile=per(row.percentile),
+            interpretive=interpretive,
+            level=level,
+        )
 
-    res = pl.DataFrame(
-        [form_row(i, r) for i, r in raw.items()],
-        orient="row",
-        schema=["id", "raw", "t", "percentile", "interpretive", "level"],
-    )
+    res = table.from_list([form_row(i, r) for i, r in raw.items()])
 
     return res, _report(asmt, form, filer, name, ver, res)

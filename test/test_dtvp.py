@@ -13,19 +13,17 @@ def test_dtvp():
 
     sub, comp, rep = dtvp.process(age, raw)
 
-    assert sub["raw"].eq([108, 11, 52, 10, 32]).all()  # type: ignore
-    assert sub["age_eq"].eq(["4;3", "4;8", "10;5", "5;10", "6;3"]).all()  # type: ignore
-    assert sub["percentile"].eq(["1", "2", "75", "25", "50"]).all()  # type: ignore
-    assert sub["scaled"].eq([3, 4, 12, 8, 10]).all()  # type: ignore
-    assert (
-        sub["descriptive"]
-        .eq(["Very Poor", "Poor", "Average", "Average", "Average"])
-        .all()
-    )  # type: ignore
+    assert [r.raw for r in sub.rows] == [108, 11, 52, 10, 32]
+    assert [r.age_eq for r in sub.rows] == ["4;3", "4;8", "10;5", "5;10", "6;3"]
+    assert [r.percentile for r in sub.rows] == ["1", "2", "75", "25", "50"]
+    assert [r.scaled for r in sub.rows] == [3, 4, 12, 8, 10]
+    assert [r.descriptive for r in sub.rows] == [
+        "Very Poor", "Poor", "Average", "Average", "Average"
+    ]
 
-    assert comp["sum_scaled"].eq([7, 30, 37]).all()  # type: ignore
-    assert comp["percentile"].eq(["<1", "50", "14"]).all()  # type: ignore
-    assert comp["descriptive"].eq(["Very Poor", "Average", "Below Average"]).all()  # type: ignore
-    assert comp["index"].eq([61, 100, 84]).all()  # type: ignore
+    assert [r.sum_scaled for r in comp.rows] == [7, 30, 37]
+    assert [r.percentile for r in comp.rows] == ["<1", "50", "14"]
+    assert [r.descriptive for r in comp.rows] == ["Very Poor", "Average", "Below Average"]
+    assert [r.index for r in comp.rows] == [61, 100, 84]
 
     assert len(rep) > 0

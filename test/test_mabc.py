@@ -1,4 +1,3 @@
-import polars as pl
 import pytest
 
 from src.report import mabc
@@ -134,9 +133,9 @@ def test_mabc(
     comp, agg, rep = mabc.process(age, raw)
 
     for k, v in comp_res.items():
-        assert comp.filter(pl.col("id") == k).select("standard").item() == v
+        assert comp.filter(id=k).item().standard == v
 
     for k, v in agg_res.items():
-        assert agg.filter(pl.col("id") == k).select("standard").item() == v
+        assert agg.filter(id=k).item().standard == v
 
     assert len(rep) > 0

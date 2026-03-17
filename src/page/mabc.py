@@ -53,24 +53,25 @@ comp, agg, rep = mabc.process(age, raw, asmt=asmt_date, hand=hand)
 
 ui.text(rep)
 
-for c in [
-    ("Handgeschicklichkeit", "hg"),
-    ("Ballfertigkeiten", "bf"),
-    ("Balance", "bl"),
-]:
-    cat = (
-        comp.to_pandas()
-        .astype({"raw": pd.Int64Dtype()})  # type: ignore
-        .set_index("id")  # type: ignore
-        .filter(like=c[1], axis=0)  # type: ignore
-        .sort_values(
-            by=["id"],
-            key=lambda s: s.map(lambda i: i if len(i) == 4 else i + "z"),  # type: ignore
-        )
-    )
-    ui.table(cat, c[0])
+st.dataframe(comp.rows)
+# for c in [
+#     ("Handgeschicklichkeit", "hg"),
+#     ("Ballfertigkeiten", "bf"),
+#     ("Balance", "bl"),
+# ]:
+#     cat = (
+#         comp.to_pandas()
+#         .astype({"raw": pd.Int64Dtype()})  # type: ignore
+#         .set_index("id")  # type: ignore
+#         .filter(like=c[1], axis=0)  # type: ignore
+#         .sort_values(
+#             by=["id"],
+#             key=lambda s: s.map(lambda i: i if len(i) == 4 else i + "z"),  # type: ignore
+#         )
+#     )
+#     ui.table(cat, c[0])
 
-order = {"hg": 0, "bf": 1, "bl": 2, "total": 4}
-agg = agg.to_pandas().set_index("id").sort_values(by=["id"], key=lambda x: x.map(order))  # type: ignore
-agg = agg.style.format({"percentile": "{:.1f}"})  # type: ignore
-ui.table(agg, "Aggregated")  # type: ignore
+# order = {"hg": 0, "bf": 1, "bl": 2, "total": 4}
+# agg = agg.to_pandas().set_index("id").sort_values(by=["id"], key=lambda x: x.map(order))  # type: ignore
+# agg = agg.style.format({"percentile": "{:.1f}"})  # type: ignore
+# ui.table(agg, "Aggregated")  # type: ignore

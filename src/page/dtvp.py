@@ -34,9 +34,13 @@ def page(rep: typing.Literal["dtvp3", "dtvpa"]) -> None:
 
     sub, comp, report = process(age, raw, asmt_date)
 
-    sub = sub.to_pandas().drop(columns=["id"]).set_index("label")  # type: ignore
-    comp = comp.to_pandas().set_index("id")  # type: ignore
+    # sub = sub.to_pandas().drop(columns=["id"]).set_index("label")  # type: ignore
+    # comp = comp.to_pandas().set_index("id")  # type: ignore
 
     ui.text(report)
-    ui.table(sub, "Subtest")
-    ui.table(comp, "Composite")
+    st.dataframe(sub.rows)
+    st.table(sub.rows)
+    st.dataframe(comp.rows)
+    st.table(comp.rows)
+    # ui.table(sub, "Subtest")
+    # ui.table(comp, "Composite")

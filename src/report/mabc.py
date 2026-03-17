@@ -4,58 +4,73 @@ import itertools
 import math
 import typing
 
-import polars as pl
-
-from src import ui, string, time
+from src import table, string, time
 
 
 @dataclasses.dataclass(frozen=True)
-class Data:
-    map_i: pl.DataFrame
-    map_t: pl.DataFrame
-
-    def get_i_row(self, i: str, age: int, r: int):
-        return self.map_i.filter(
-            (pl.col("id") == i)
-            & (pl.col("age_min") <= age)
-            & (pl.col("age_max") > age)
-            & (pl.col("raw_min") <= r)
-            & (pl.col("raw_max") >= r)
-        )
-
-    def get_t_row(self, i: str, r: int):
-        return self.map_t.filter(
-            (pl.col("id") == i) & (pl.col("raw_min") <= r) & (pl.col("raw_max") >= r)
-        )
+class IRow:
+    id: str
+    age_min: int
+    age_max: float
+    raw_min: int
+    raw_max: float
+    standard: int
+    rank: int
 
 
-@ui.cache
-def _load() -> Data:
-    map_i = pl.read_csv("public/mabc-i.csv")
-    map_t = pl.read_csv("public/mabc-t.csv")
-    return Data(map_i, map_t)
+@dataclasses.dataclass(frozen=True)
+class TRow:
+    id: str
+    raw_min: int
+    raw_max: float
+    standard: int
+    percentile: float
+    rank: int
+
+
+def _get_i_row(data: table.Table[IRow], i: str, age: int, r: int) -> IRow:
+    return data.filter(
+        id=i,
+        age_min=lambda v: v <= age,
+        age_max=lambda v: v > age,
+        raw_min=lambda v: v <= r,
+        raw_max=lambda v: v >= r,
+    ).item()
+
+
+def _get_t_row(data: table.Table[TRow], i: str, r: int) -> TRow:
+    return data.filter(
+        id=i,
+        raw_min=lambda v: v <= r,
+        raw_max=lambda v: v >= r,
+    ).item()
+
+
+def _load() -> tuple[table.Table[IRow], table.Table[TRow]]:
+    map_i = table.read_csv("public/mabc-i.csv", IRow)
+    map_t = table.read_csv("public/mabc-t.csv", TRow)
+    return map_i, map_t
 
 
 def validate():
-    data = _load()
-    ages = range(
-        data.map_i.select("age_min").min().item(),
-        data.map_i.select("age_max").max().item(),
-    )
+    map_i, map_t = _load()
+    age_min = min(r.age_min for r in map_i.rows)
+    age_max = max(int(r.age_max) for r in map_i.rows if r.age_max != float("inf"))
+    ages = range(age_min, age_max)
     for a in ages:
         ids = [i for lst in get_comps(time.Delta(years=a)).values() for i in lst]
         raws = range(0, 122)
 
         for i, r in itertools.product(ids, raws):
-            row = data.get_i_row(i, a, r)
-            assert row.select("standard").item() > 0
+            row = _get_i_row(map_i, i, a, r)
+            assert row.standard > 0
 
     ids = ["hg", "bf", "bl", "gw"]
     raws = range(0, 109)
     for i, r in itertools.product(ids, raws):
-        row = data.get_t_row(i, r)
-        assert row.select("standard").item() > 0
-        assert row.select("percentile").item() > 0
+        row = _get_t_row(map_t, i, r)
+        assert row.standard > 0
+        assert row.percentile > 0
 
 
 def get_comps(age: time.Delta) -> dict[str, list[str]]:
@@ -81,11 +96,11 @@ def get_failed() -> list[str]:
 
 
 def _process_comp(
-    data: Data, age: int, raw: dict[str, typing.Optional[int]]
+    map_i: table.Table[IRow], age: int, raw: dict[str, typing.Optional[int]]
 ) -> dict[str, tuple[int | None, int]]:
     comp: dict[str, tuple[int | None, int]] = {}
     for k, v in raw.items():
-        std = 1 if v is None else data.get_i_row(k, age, v).select("standard").item()
+        std = 1 if v is None else _get_i_row(map_i, k, age, v).standard
         comp[k] = (v, std)
 
     def avg(v0: int, v1: int) -> int:
@@ -106,28 +121,20 @@ def _process_comp(
 
 
 def _process_agg(
-    data: Data, comp: dict[str, tuple[int | None, int]]
-) -> dict[str, list[int]]:
-    agg: dict[str, list[int]] = {}
+    map_t: table.Table[TRow], comp: dict[str, tuple[int | None, int]]
+) -> dict[str, list[int | float]]:
+    agg: dict[str, list[int | float]] = {}
 
     for cmp in ["hg", "bf", "bl"]:
         score = sum(
             v[1] if len(k) == 3 and k.startswith(cmp) else 0 for k, v in comp.items()
         )
-        row = data.get_t_row(cmp, score)
-        agg[cmp] = [
-            score,
-            row.select("standard").item(),
-            row.select("percentile").item(),
-        ]
+        row = _get_t_row(map_t, cmp, score)
+        agg[cmp] = [score, row.standard, row.percentile]
 
-    score = sum(v[0] for v in agg.values())
-    row = data.get_t_row("gw", score)
-    agg["total"] = [
-        score,
-        row.select("standard").item(),
-        row.select("percentile").item(),
-    ]
+    score = sum(int(v[0]) for v in agg.values())
+    row = _get_t_row(map_t, "gw", score)
+    agg["total"] = [score, row.standard, row.percentile]
 
     return agg
 
@@ -142,37 +149,64 @@ def level(std: int) -> typing.Literal[0, 1, 2, 3]:
     return 3
 
 
+@dataclasses.dataclass(frozen=True)
+class CompResultRow:
+    id: str
+    raw: int | None
+    standard: int
+    level: int
+
+
+@dataclasses.dataclass(frozen=True)
+class AggResultRow:
+    id: str
+    raw: int
+    standard: int
+    percentile: float
+    level: int
+
+
 def process(
     age: time.Delta,
     raw: dict[str, typing.Optional[int]],
     asmt: datetime.date | None = None,
     hand: str = "Right",
-) -> tuple[pl.DataFrame, pl.DataFrame, str]:
+) -> tuple[table.Table[CompResultRow], table.Table[AggResultRow], str]:
     if asmt is None:
         asmt = datetime.date.today()
 
-    data = _load()
+    map_i, map_t = _load()
 
-    comp = _process_comp(data, age.years, raw)
+    comp = _process_comp(map_i, age.years, raw)
 
-    agg = _process_agg(data, comp)
+    agg = _process_agg(map_t, comp)
 
-    comp_res = pl.DataFrame(
-        [[k, *list(v), level(v[1])] for k, v in comp.items()],
-        schema=["id", "raw", "standard", "level"],
-        orient="row",
+    comp_rows = [
+        CompResultRow(id=k, raw=v[0], standard=v[1], level=level(v[1]))
+        for k, v in comp.items()
+    ]
+
+    agg_rows = [
+        AggResultRow(
+            id=k,
+            raw=int(v[0]),
+            standard=int(v[1]),
+            percentile=v[2],
+            level=level(int(v[1])),
+        )
+        for k, v in agg.items()
+    ]
+
+    return (
+        table.Table(comp_rows),
+        table.Table(agg_rows),
+        report(asmt, age, hand, table.Table(agg_rows)),
     )
 
-    agg_res = pl.DataFrame(
-        [[k, *list(v), level(v[1])] for k, v in agg.items()],
-        schema=["id", "raw", "standard", "percentile", "level"],
-        orient="row",
-    )
 
-    return comp_res, agg_res, report(asmt, age, hand, agg_res)
-
-
-def report(asmt: datetime.date, age: time.Delta, hand: str, agg: pl.DataFrame) -> str:
+def report(
+    asmt: datetime.date, age: time.Delta, hand: str, agg: table.Table[AggResultRow]
+) -> str:
     if age.years < 7:
         group = "3-6"
     elif age.years < 11:
@@ -190,13 +224,13 @@ def report(asmt: datetime.date, age: time.Delta, hand: str, agg: pl.DataFrame) -
             return "kritisch"
         return "therapiebedürftig"
 
-    def perc(i: str):
-        return agg.filter(pl.col("id") == i).select("percentile").item()
+    def perc(i: str) -> float:
+        return agg.filter(id=i).item().percentile
 
-    def std(i: str):
-        return agg.filter(pl.col("id") == i).select("standard").item()
+    def std(i: str) -> int:
+        return agg.filter(id=i).item().standard
 
-    tot = agg.filter(pl.col("id") == "total")
+    tot = agg.filter(id="total").item()
 
     rep = string.StrBuilder()
 
@@ -210,8 +244,6 @@ def report(asmt: datetime.date, age: time.Delta, hand: str, agg: pl.DataFrame) -
     rep.add_line(f"Ballfertigkeit: PR {perc('bf')} - {level_str(std('bf'))}")
     rep.add_line(f"Balance: PR {perc('bl')} - {level_str(std('bl'))}")
     rep.add_line()
-    rep.add_line(
-        f"Gesamttestwert: PR {tot.select('percentile').item()} - {level_str(tot.select('standard').item())}"
-    )
+    rep.add_line(f"Gesamttestwert: PR {tot.percentile} - {level_str(tot.standard)}")
 
     return str(rep)
