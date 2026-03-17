@@ -5,7 +5,6 @@ import streamlit as st
 from src import ui
 from src.report import spm
 
-
 left_col, right_col = ui.structure("SPM")
 
 with left_col:

@@ -2,7 +2,6 @@ from os import path
 
 import streamlit as st
 
-
 st.set_page_config(
     initial_sidebar_state="expanded",
     layout="wide",

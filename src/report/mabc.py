@@ -4,7 +4,7 @@ import itertools
 import math
 import typing
 
-from src import table, string, time
+from src import string, table, time
 
 
 @dataclasses.dataclass(frozen=True)

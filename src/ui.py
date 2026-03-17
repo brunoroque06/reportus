@@ -3,9 +3,8 @@ from typing import Any, Callable, Literal
 
 import streamlit as st
 
-
-from src.time import Delta, minus_delta, to_delta
 from src.table import Table
+from src.time import Delta, minus_delta, to_delta
 
 
 def header(title: str):

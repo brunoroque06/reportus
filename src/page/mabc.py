@@ -6,7 +6,6 @@ from src import ui
 from src.report import mabc
 from src.time import Delta
 
-
 left, right = ui.structure("MABC")
 
 
