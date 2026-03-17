@@ -1,6 +1,6 @@
 import csv
 import dataclasses
-from typing import Any
+from typing import Any, Callable
 
 # Does not work with pyright
 # T: dataclasses.DataclassInstance
@@ -31,6 +31,12 @@ class Table[T]:
 
     def item(self) -> T:
         return self.rows[0]
+
+    def map[V](self, func: Callable[[T], V]) -> "Table[V]":
+        return Table([func(r) for r in self.rows])
+
+    def sort(self, key: Callable[[T], str | int]) -> "Table[T]":
+        return Table(sorted(self.rows, key=key))
 
     def to_dicts(self) -> list[dict[str, Any]]:
         fields = dataclasses.fields(self.rows[0])  # type: ignore[arg-type]

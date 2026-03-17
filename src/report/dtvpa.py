@@ -81,7 +81,7 @@ class Sub:
     id: str
     label: str
     raw: int
-    pile: str
+    percentile: str
     standard: int
     description: str
     level: int
@@ -92,7 +92,7 @@ class Comp:
     id: str
     sum_standard: int
     index: int
-    pile: str
+    percentile: str
     description: str
     level: int
 
@@ -104,7 +104,7 @@ def report(asmt: datetime.date, sub: table.Table[Sub], comp: table.Table[Comp]) 
             "",
         ]
         + [
-            f"{n}: PR {comp.filter(id=i).item().pile} - {dtvp.lvl_idx(comp.filter(id=i).item().index, True)[0]}"
+            f"{n}: PR {comp.filter(id=i).item().percentile} - {dtvp.lvl_idx(comp.filter(id=i).item().index, True)[0]}"
             for n, i in [
                 ("Visuomotorische Integration", "Visual-Motor Integration (VMII)"),
                 (
@@ -119,7 +119,7 @@ def report(asmt: datetime.date, sub: table.Table[Sub], comp: table.Table[Comp]) 
             "Subtests:",
         ]
         + [
-            f"{n}: PR {sub.filter(id=i).item().pile} - {dtvp.lvl_sca(sub.filter(id=i).item().standard, True)[0]}"
+            f"{n}: PR {sub.filter(id=i).item().percentile} - {dtvp.lvl_sca(sub.filter(id=i).item().standard, True)[0]}"
             for n, i in [
                 ("Abzeichnen", "co"),
                 ("Figur-Grund", "fg"),
@@ -153,7 +153,7 @@ def process(
                 id=k,
                 label=v,
                 raw=raw[k],
-                pile=dtvp.to_pr(row.percentile),
+                percentile=dtvp.to_pr(row.percentile),
                 standard=row.standard,
                 description=desc,
                 level=lvl,
@@ -195,7 +195,7 @@ def process(
                 id=l,
                 sum_standard=su,
                 index=row.index,
-                pile=dtvp.to_pr(row.percentile),
+                percentile=dtvp.to_pr(row.percentile),
                 description=desc,
                 level=lvl,
             )

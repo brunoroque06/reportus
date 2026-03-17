@@ -1,28 +1,33 @@
 import datetime
-import typing
+from typing import Any, Callable, Literal
 
-import pandas as pd
 import streamlit as st
-from pandas.io.formats import style
+
 
 from src.time import Delta, minus_delta, to_delta
+from src.table import Table
 
 
 def header(title: str):
     st.subheader(title)
 
 
-def date_input(label: str, date: datetime.date, **kwargs: typing.Any):
+def structure(title: str):
+    st.subheader(title)
+    return st.columns([0.4, 0.6])
+
+
+def date_input(label: str, date: datetime.date, **kwargs: Any):
     return st.date_input(label, date, format="DD.MM.YYYY", **kwargs)
 
 
-Color = typing.Literal["blue", "green", "red"]
+Color = Literal["blue", "green", "red"]
 
 
 def dates(
     min_years: int,
     max_years: int,
-    disp: typing.Callable[[Delta], Color] = lambda _: "blue",
+    disp: Callable[[Delta], Color] = lambda _: "blue",
 ) -> tuple[datetime.date, datetime.date, Delta]:
     col1, col2, col3 = st.columns([1, 1, 2])
 
@@ -57,29 +62,40 @@ def dates(
     return asmt, birth, age
 
 
-def table(df: pd.DataFrame | style.Styler, title: str | None = None):
-    if isinstance(df, pd.DataFrame):
-        df = df.style
-
-    def color_row(row: pd.DataFrame) -> list[str]:
-        levels = {
-            0: "rgba(33, 195, 84, 0.1)",
-            1: "rgba(255, 193, 7, 0.1)",
-            2: "rgba(255, 43, 43, 0.09)",
-            3: "rgba(255, 43, 43, 0.09)",
-        }
-        lvl: int | None = row["level"]  # type: ignore
-        if pd.isna(lvl):
-            return [""] * len(row)
-        color = levels[lvl]
-        return [f"background-color: {color};"] * len(row)
-
-    df = df.apply(color_row, axis=1)  # type: ignore
+def table(table: Table[Any], title: str | None = None, hide_cols: list[str] = []):
+    dicts = table.to_dicts()
 
     if title:
         st.text(title)
-    st.dataframe(  # type: ignore
-        df, column_config={"level": {"hidden": True}}
+
+    def level_map(l: str) -> str:
+        if l == "0":
+            return "OK"
+        if l == "1":
+            return "-"
+        return "X"
+
+    st.dataframe(
+        dicts,
+        column_config={
+            "level": st.column_config.MultiselectColumn(
+                "",
+                options=[
+                    "0",
+                    "1",
+                    "2",
+                    "3",
+                ],
+                color=["green", "yellow", "red", "red"],
+                disabled=True,
+                format_func=level_map,
+            ),
+            "percentile": st.column_config.ProgressColumn(
+                format="%.1f %%", label="%", max_value=100
+            ),
+            **{c: None for c in hide_cols},
+        },
+        hide_index=True,
     )
 
 

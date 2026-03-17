@@ -13,11 +13,11 @@ def test_dtvpa():
     )
 
     assert [r.raw for r in sub.rows] == [13, 4, 60, 12, 29, 6]
-    assert [r.pile for r in sub.rows] == ["25", "9", "9", "25", "9", "16"]
+    assert [r.percentile for r in sub.rows] == ["25", "9", "9", "25", "9", "16"]
     assert [r.standard for r in sub.rows] == [8, 6, 6, 8, 6, 7]
 
     assert [r.sum_standard for r in comp.rows] == [41, 21, 20]
     assert [r.index for r in comp.rows] == [78, 81, 79]
-    assert [r.pile for r in comp.rows] == ["7", "10", "8"]
+    assert [r.percentile for r in comp.rows] == ["7", "10", "8"]
 
     assert len(rep) > 0

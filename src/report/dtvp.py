@@ -178,8 +178,8 @@ class CompRow:
     sum_scaled: int
     percentile: str
     descriptive: str
-    level: int
     index: int
+    level: int
 
 
 def process(
@@ -260,16 +260,13 @@ def process(
 
     rep = report(asmt, sub, comp)
 
-    sub = table.Table(
-        [
-            dataclasses.replace(
-                r, age_eq=to_age(r.age_eq), percentile=to_pr(int(r.percentile))
-            )
-            for r in sub.rows
-        ]
+    sub = sub.map(
+        lambda r: dataclasses.replace(
+            r, age_eq=to_age(r.age_eq), percentile=to_pr(int(r.percentile))
+        )
     )
-    comp = table.Table(
-        [dataclasses.replace(r, percentile=to_pr(int(r.percentile))) for r in comp.rows]
+    comp = comp.map(
+        lambda r: dataclasses.replace(r, percentile=to_pr(int(r.percentile)))
     )
 
     return sub, comp, rep

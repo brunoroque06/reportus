@@ -6,6 +6,8 @@ import urllib.request
 import pytest
 from playwright import sync_api
 
+from main import pages
+
 port = 8501
 host = f"http://localhost:{port}"
 
@@ -35,7 +37,7 @@ def start_app():
         app.terminate()
 
 
-@pytest.mark.parametrize("url", ["DTVP-3", "DTVP-A", "MABC", "SPM"])
+@pytest.mark.parametrize("url", map(lambda p: p[0], pages()))
 def test_pages(page: sync_api.Page, url: str):
     page.goto(f"{host}/{url}")
     page.wait_for_selector(".stApp", timeout=5000)
