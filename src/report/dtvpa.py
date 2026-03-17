@@ -7,7 +7,7 @@ from src.report import dtvp
 
 
 @dataclasses.dataclass(frozen=True)
-class StdRow:
+class Std:
     id: str
     age_min: int
     age_max: float
@@ -18,14 +18,20 @@ class StdRow:
 
 
 @dataclasses.dataclass(frozen=True)
-class SumRow:
+class Sum:
     id: str
     sum: int
     index: int
     percentile: int
 
 
-def _get_std(data: table.Table[StdRow], i: str, age: time.Delta, r: int) -> StdRow:
+def _load() -> tuple[table.Table[Std], table.Table[Sum]]:
+    std = table.read_csv("public/dtvpa-std.csv", Std)
+    sums = table.read_csv("public/dtvpa-sum.csv", Sum)
+    return std, sums
+
+
+def _get_std(data: table.Table[Std], i: str, age: time.Delta, r: int) -> Std:
     return data.filter(
         id=i,
         age_min=lambda v: v <= age.years,
@@ -35,14 +41,8 @@ def _get_std(data: table.Table[StdRow], i: str, age: time.Delta, r: int) -> StdR
     ).item()
 
 
-def _get_sum(data: table.Table[SumRow], i: str, su: int) -> SumRow:
+def _get_sum(data: table.Table[Sum], i: str, su: int) -> Sum:
     return data.filter(id=i, sum=su).item()
-
-
-def _load() -> tuple[table.Table[StdRow], table.Table[SumRow]]:
-    std = table.read_csv("public/dtvpa-std.csv", StdRow)
-    sums = table.read_csv("public/dtvpa-sum.csv", SumRow)
-    return std, sums
 
 
 def validate():
@@ -77,7 +77,7 @@ def get_tests() -> dict[str, str]:
 
 
 @dataclasses.dataclass(frozen=True)
-class SubRow:
+class Sub:
     id: str
     label: str
     raw: int
@@ -88,7 +88,7 @@ class SubRow:
 
 
 @dataclasses.dataclass(frozen=True)
-class CompRow:
+class Comp:
     id: str
     sum_standard: int
     index: int
@@ -97,9 +97,7 @@ class CompRow:
     level: int
 
 
-def report(
-    asmt: datetime.date, sub: table.Table[SubRow], comp: table.Table[CompRow]
-) -> str:
+def report(asmt: datetime.date, sub: table.Table[Sub], comp: table.Table[Comp]) -> str:
     return "\n".join(
         [
             f"Developmental Test of Visual Perception - Adolescent and Adult (DTVP-A) - ({time.format_date(asmt)})",
@@ -138,7 +136,7 @@ def process(
     age: time.Delta,
     raw: dict[str, int],
     asmt: datetime.date | None = None,
-) -> tuple[table.Table[SubRow], table.Table[CompRow], str]:
+) -> tuple[table.Table[Sub], table.Table[Comp], str]:
     if asmt is None:
         asmt = datetime.date.today()
 
@@ -146,12 +144,12 @@ def process(
 
     tests = get_tests()
 
-    sub_rows: list[SubRow] = []
+    sub_rows: list[Sub] = []
     for k, v in tests.items():
         row = _get_std(std, k, age, raw[k])
         desc, lvl = dtvp.lvl_sca(row.standard)
         sub_rows.append(
-            SubRow(
+            Sub(
                 id=k,
                 label=v,
                 raw=raw[k],
@@ -188,12 +186,12 @@ def process(
         ),
     ]
 
-    comp_rows: list[CompRow] = []
+    comp_rows: list[Comp] = []
     for _, l, su, i in comps:
         row = _get_sum(sums, i, su)
         desc, lvl = dtvp.lvl_idx(row.index)
         comp_rows.append(
-            CompRow(
+            Comp(
                 id=l,
                 sum_standard=su,
                 index=row.index,

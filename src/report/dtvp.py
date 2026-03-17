@@ -6,7 +6,7 @@ from src import string, table, time
 
 
 @dataclasses.dataclass(frozen=True)
-class RaRow:
+class RawAge:
     id: str
     raw_min: int
     raw_max: float
@@ -15,7 +15,7 @@ class RaRow:
 
 
 @dataclasses.dataclass(frozen=True)
-class RsRow:
+class RawSca:
     id: str
     age_min_y: int
     age_min_m: int
@@ -28,14 +28,21 @@ class RsRow:
 
 
 @dataclasses.dataclass(frozen=True)
-class SpRow:
+class ScaPer:
     id: str
     scaled: int
     percentile: int
     index: int
 
 
-def _get_ra(data: table.Table[RaRow], i: str, raw: int) -> RaRow:
+def _load() -> tuple[table.Table[RawAge], table.Table[RawSca], table.Table[ScaPer]]:
+    ra = table.read_csv("public/dtvp-raw-ageeq.csv", RawAge)
+    rs = table.read_csv("public/dtvp-raw-sca.csv", RawSca)
+    sp = table.read_csv("public/dtvp-sca-per.csv", ScaPer)
+    return ra, rs, sp
+
+
+def _get_ra(data: table.Table[RawAge], i: str, raw: int) -> RawAge:
     return data.filter(
         id=i,
         raw_min=lambda v: v <= raw,
@@ -43,7 +50,7 @@ def _get_ra(data: table.Table[RaRow], i: str, raw: int) -> RaRow:
     ).item()
 
 
-def _get_rs(data: table.Table[RsRow], i: str, age: time.Delta, raw: int) -> RsRow:
+def _get_rs(data: table.Table[RawSca], i: str, age: time.Delta, raw: int) -> RawSca:
     months = age.years * 12 + age.months
     matching = [
         r
@@ -57,15 +64,8 @@ def _get_rs(data: table.Table[RsRow], i: str, age: time.Delta, raw: int) -> RsRo
     return matching[0]
 
 
-def _get_sp(data: table.Table[SpRow], i: str, s: int) -> SpRow:
+def _get_sp(data: table.Table[ScaPer], i: str, s: int) -> ScaPer:
     return data.filter(id=i, scaled=s).item()
-
-
-def _load() -> tuple[table.Table[RaRow], table.Table[RsRow], table.Table[SpRow]]:
-    ra = table.read_csv("public/dtvp-raw-ageeq.csv", RaRow)
-    rs = table.read_csv("public/dtvp-raw-sca.csv", RsRow)
-    sp = table.read_csv("public/dtvp-sca-per.csv", SpRow)
-    return ra, rs, sp
 
 
 def validate():

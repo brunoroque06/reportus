@@ -48,7 +48,7 @@ def get_scores() -> dict[str, str]:
 
 
 @dataclasses.dataclass(frozen=True)
-class CsvRow:
+class Spm:
     id: str
     raw_min: int
     raw_max: float
@@ -57,14 +57,14 @@ class CsvRow:
     type: str
 
 
-def _load() -> table.Table[CsvRow]:
-    classroom = table.read_csv("public/spm-classroom.csv", CsvRow)
-    home = table.read_csv("public/spm-home.csv", CsvRow)
-    home2 = table.read_csv("public/spm2-home.csv", CsvRow)
+def _load() -> table.Table[Spm]:
+    classroom = table.read_csv("public/spm-classroom.csv", Spm)
+    home = table.read_csv("public/spm-home.csv", Spm)
+    home2 = table.read_csv("public/spm2-home.csv", Spm)
     return classroom.concat(home).concat(home2)
 
 
-def _get_row(data: table.Table[CsvRow], form: str, i: str, r: int) -> CsvRow:
+def _get_row(data: table.Table[Spm], form: str, i: str, r: int) -> Spm:
     return data.filter(
         type=form,
         id=i,
@@ -92,7 +92,7 @@ typical = "Typical"
 
 
 @dataclasses.dataclass(frozen=True)
-class ResultRow:
+class Result:
     id: str
     raw: int
     t: int | None
@@ -107,7 +107,7 @@ def _report(
     filer: Filer,
     name: str | None,
     ver: Version,
-    res: table.Table[ResultRow],
+    res: table.Table[Result],
 ) -> str:
     asmt_fmt = time.format_date(asmt, False)
     spm = f"SPM {ver}"
@@ -200,7 +200,7 @@ def process(
     filer: Filer,
     name: str | None,
     raw: dict[str, int],
-) -> tuple[table.Table[ResultRow], str]:
+) -> tuple[table.Table[Result], str]:
     data = _load()
 
     def ver1():
@@ -222,16 +222,16 @@ def process(
             return ("Some Problems" if ver1() else "Moderate Difficulties", 1)
         return ("Definite Dysfunction" if ver1() else "Severe Difficulties", 2)
 
-    def form_row(i: str, r: int) -> ResultRow:
+    def form_row(i: str, r: int) -> Result:
         if ver1() and i == "t&s":
-            return ResultRow(
+            return Result(
                 id="t&s", raw=r, t=None, percentile=None, interpretive=None, level=None
             )
         key = f"{form.lower()}{ver}"
         row = _get_row(data, key, i, r)
         t_val = row.t
         interpretive, level = inter(t_val)
-        return ResultRow(
+        return Result(
             id=i,
             raw=r,
             t=t_val,

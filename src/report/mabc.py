@@ -28,6 +28,12 @@ class TRow:
     rank: int
 
 
+def _load() -> tuple[table.Table[IRow], table.Table[TRow]]:
+    map_i = table.read_csv("public/mabc-i.csv", IRow)
+    map_t = table.read_csv("public/mabc-t.csv", TRow)
+    return map_i, map_t
+
+
 def _get_i_row(data: table.Table[IRow], i: str, age: int, r: int) -> IRow:
     return data.filter(
         id=i,
@@ -44,12 +50,6 @@ def _get_t_row(data: table.Table[TRow], i: str, r: int) -> TRow:
         raw_min=lambda v: v <= r,
         raw_max=lambda v: v >= r,
     ).item()
-
-
-def _load() -> tuple[table.Table[IRow], table.Table[TRow]]:
-    map_i = table.read_csv("public/mabc-i.csv", IRow)
-    map_t = table.read_csv("public/mabc-t.csv", TRow)
-    return map_i, map_t
 
 
 def validate():
