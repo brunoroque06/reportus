@@ -58,7 +58,7 @@ with right:
         ("Ballfertigkeiten", "bf"),
         ("Balance", "bl"),
     ]:
-        t = comp.filter(id=lambda i: i.startswith(c[1]))
+        t = comp.filter(id=lambda i: i.startswith(c[1]))  # pyright: ignore[reportUnknownMemberType]
         t = t.sort(key=lambda r: r.id if len(r.id) == 4 else r.id + "z")
         ui.table(t, c[0])
 

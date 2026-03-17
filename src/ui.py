@@ -74,7 +74,7 @@ def table(table: Table[Any], title: str | None = None, hide_cols: list[str] = []
             return "-"
         return "X"
 
-    st.dataframe(
+    st.dataframe(  # pyright: ignore[reportUnknownMemberType]
         dicts,
         column_config={
             "level": st.column_config.MultiselectColumn(
