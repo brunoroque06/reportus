@@ -18,12 +18,20 @@ def test_dtvp():
     assert [r.percentile for r in sub.rows] == ["1", "2", "75", "25", "50"]
     assert [r.scaled for r in sub.rows] == [3, 4, 12, 8, 10]
     assert [r.descriptive for r in sub.rows] == [
-        "Very Poor", "Poor", "Average", "Average", "Average"
+        "Very Poor",
+        "Poor",
+        "Average",
+        "Average",
+        "Average",
     ]
 
     assert [r.sum_scaled for r in comp.rows] == [7, 30, 37]
     assert [r.percentile for r in comp.rows] == ["<1", "50", "14"]
-    assert [r.descriptive for r in comp.rows] == ["Very Poor", "Average", "Below Average"]
+    assert [r.descriptive for r in comp.rows] == [
+        "Very Poor",
+        "Average",
+        "Below Average",
+    ]
     assert [r.index for r in comp.rows] == [61, 100, 84]
 
     assert len(rep) > 0
