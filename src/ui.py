@@ -16,8 +16,8 @@ def structure(title: str):
     return st.columns([0.4, 0.6])
 
 
-def date_input(label: str, date: datetime.date, **kwargs: Any):
-    return st.date_input(label, date, format="DD.MM.YYYY", **kwargs)
+def date_input(label: str, date: datetime.date, key: str | None = None, **kwargs: Any):
+    return st.date_input(label, date, format="DD.MM.YYYY", key=key, **kwargs)
 
 
 Color = Literal["blue", "green", "red"]
@@ -27,12 +27,15 @@ def dates(
     min_years: int,
     max_years: int,
     disp: Callable[[Delta], Color] = lambda _: "blue",
+    key: str | None = None,
 ) -> tuple[datetime.date, datetime.date, Delta]:
     col1, col2, col3 = st.columns([1, 1, 2])
 
     today = datetime.date.today()
     with col1:
-        asmt = date_input("Assessment", today, max_value=today)
+        asmt = date_input(
+            "Assessment", today, key=f"{key}_asmt" if key else None, max_value=today
+        )
 
     with col2:
         birth = date_input(
@@ -40,6 +43,7 @@ def dates(
             minus_delta(
                 asmt, Delta(years=min_years + int((max_years - min_years) / 2))
             ),
+            key=f"{key}_birth" if key else None,
             max_value=minus_delta(asmt, Delta(min_years)),
             min_value=minus_delta(asmt, Delta(years=max_years - 1, days=364)),
         )

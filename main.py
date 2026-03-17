@@ -1,25 +1,21 @@
-from os import path
-
 import streamlit as st
 
+from src.page import dtvp, mabc, spm
+
 st.set_page_config(
-    initial_sidebar_state="expanded",
     layout="wide",
     page_title="Reportus",
 )
 
 
-def pages():
-    return [
-        ("dtvp3.py", "DTVP-3"),
-        ("dtvpa.py", "DTVP-A"),
-        ("mabc.py", "MABC"),
-        ("spm.py", "SPM"),
-    ]
+tabs = [
+    ("DTVP-3", lambda: dtvp.page("dtvp3")),
+    ("DTVP-A", lambda: dtvp.page("dtvpa")),
+    ("MABC", mabc.page),
+    ("SPM", spm.page),
+]
 
 
-pg = st.navigation(
-    [st.Page(path.join("src", "page", file), title=title) for file, title in pages()]
-)
-
-pg.run()
+for t_def, t in zip(tabs, st.tabs([t[0] for t in tabs])):
+    with t:
+        t_def[1]()

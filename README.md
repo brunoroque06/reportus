@@ -1,3 +1,3 @@
 # Reportus
 
-<https://reportus.streamlit.app>
+<https://brunoroque06.github.io/reportus>

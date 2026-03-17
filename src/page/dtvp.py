@@ -23,7 +23,7 @@ def page(rep: typing.Literal["dtvp3", "dtvpa"]) -> None:
     left, right = ui.structure(title)
 
     with left:
-        asmt_date, _, age = ui.dates(min_age, max_age)
+        asmt_date, _, age = ui.dates(min_age, max_age, key=rep)
 
         raw: dict[str, int] = {}
         tests = get_tests()

@@ -1,5 +1,4 @@
 .DS_Store
-.benchmarks
 .pytest_cache
 .ruff_cache
 .venv
