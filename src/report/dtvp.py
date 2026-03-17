@@ -2,7 +2,7 @@ import dataclasses
 import datetime
 import itertools
 
-from src import string, table, time
+from src import string, table, time, ui
 
 
 @dataclasses.dataclass(frozen=True)
@@ -35,6 +35,7 @@ class ScaPer:
     index: int
 
 
+@ui.cache
 def _load() -> tuple[table.Table[RawAge], table.Table[RawSca], table.Table[ScaPer]]:
     ra = table.read_csv("public/dtvp-raw-ageeq.csv", RawAge)
     rs = table.read_csv("public/dtvp-raw-sca.csv", RawSca)
