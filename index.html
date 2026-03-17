@@ -21,7 +21,6 @@
         {
           entrypoint: "main.py",
           files: {
-            "./.streamlit/config.toml": { url: "./.streamlit/config.toml" },
             "main.py": { url: "./main.py" },
             "src/__init__.py": { data: "" },
             "src/string.py": { url: "./src/string.py" },
@@ -51,6 +50,12 @@
             "public/spm2-home.csv": { url: "./public/spm2-home.csv" },
           },
           requirements: ["python-dateutil"],
+          streamlitConfig: {
+            "browser.gatherUsageStats": false,
+            "client.toolbarMode": "viewer",
+            "theme.font": "sans serif",
+            "theme.primaryColor": "#286983",
+          },
         },
         document.getElementById("root"),
       );
