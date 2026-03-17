@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <title>Reportus</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@stlite/browser/build/stlite.css"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module">
+      import { mount } from "https://cdn.jsdelivr.net/npm/@stlite/browser/build/stlite.js";
+
+      mount(
+        {
+          entrypoint: "main.py",
+          files: {
+            "./.streamlit/config.toml": { url: "./.streamlit/config.toml" },
+            "main.py": { url: "./main.py" },
+            "src/__init__.py": { url: "./src/__init__.py" },
+            "src/string.py": { url: "./src/string.py" },
+            "src/table.py": { url: "./src/table.py" },
+            "src/time.py": { url: "./src/time.py" },
+            "src/ui.py": { url: "./src/ui.py" },
+            "src/page/__init__.py": { url: "./src/page/__init__.py" },
+            "src/page/dtvp.py": { url: "./src/page/dtvp.py" },
+            "src/page/dtvp3.py": { url: "./src/page/dtvp3.py" },
+            "src/page/dtvpa.py": { url: "./src/page/dtvpa.py" },
+            "src/page/mabc.py": { url: "./src/page/mabc.py" },
+            "src/page/spm.py": { url: "./src/page/spm.py" },
+            "src/report/__init__.py": { url: "./src/report/__init__.py" },
+            "src/report/dtvp.py": { url: "./src/report/dtvp.py" },
+            "src/report/dtvpa.py": { url: "./src/report/dtvpa.py" },
+            "src/report/mabc.py": { url: "./src/report/mabc.py" },
+            "src/report/spm.py": { url: "./src/report/spm.py" },
+            "public/dtvp-raw-ageeq.csv": { url: "./public/dtvp-raw-ageeq.csv" },
+            "public/dtvp-raw-sca.csv": { url: "./public/dtvp-raw-sca.csv" },
+            "public/dtvp-sca-per.csv": { url: "./public/dtvp-sca-per.csv" },
+            "public/dtvpa-std.csv": { url: "./public/dtvpa-std.csv" },
+            "public/dtvpa-sum.csv": { url: "./public/dtvpa-sum.csv" },
+            "public/mabc-i.csv": { url: "./public/mabc-i.csv" },
+            "public/mabc-t.csv": { url: "./public/mabc-t.csv" },
+            "public/spm-classroom.csv": { url: "./public/spm-classroom.csv" },
+            "public/spm-home.csv": { url: "./public/spm-home.csv" },
+            "public/spm2-home.csv": { url: "./public/spm2-home.csv" },
+          },
+          requirements: ["python-dateutil"],
+        },
+        document.getElementById("root"),
+      );
+    </script>
+  </body>
+</html>

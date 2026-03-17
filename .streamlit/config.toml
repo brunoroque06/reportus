@@ -1,6 +1,9 @@
+[client]
+toolbarMode = "viewer"
+
 [browser]
 gatherUsageStats = false
 
 [theme]
-font = 'sans serif'
-primaryColor = '#286983'
+primaryColor = "#286983"
+font = "sans serif"
