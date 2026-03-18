@@ -13,7 +13,7 @@ def header(title: str):
 
 def structure(title: str):
     st.subheader(title)
-    return st.columns([0.4, 0.6])
+    return st.columns([0.45, 0.55])
 
 
 def date_input(label: str, date: datetime.date, key: str | None = None, **kwargs: Any):

@@ -167,7 +167,7 @@ class SubRow:
     label: str
     raw: int
     age_eq: str
-    percentile: str
+    percentile: int
     scaled: int
     descriptive: str
     level: int
@@ -177,7 +177,7 @@ class SubRow:
 class CompRow:
     id: str
     sum_scaled: int
-    percentile: str
+    percentile: int
     descriptive: str
     index: int
     level: int
@@ -212,7 +212,7 @@ def process(
                 label=v,
                 raw=raw[k],
                 age_eq=age_eq(k),
-                percentile=str(per),
+                percentile=per,
                 scaled=sca,
                 descriptive=desc,
                 level=lvl,
@@ -250,7 +250,7 @@ def process(
             CompRow(
                 id=l,
                 sum_scaled=v,
-                percentile=str(row.percentile),
+                percentile=row.percentile,
                 descriptive=desc,
                 level=lvl,
                 index=row.index,
@@ -261,14 +261,7 @@ def process(
 
     rep = report(asmt, sub, comp)
 
-    sub = sub.map(
-        lambda r: dataclasses.replace(
-            r, age_eq=to_age(r.age_eq), percentile=to_pr(int(r.percentile))
-        )
-    )
-    comp = comp.map(
-        lambda r: dataclasses.replace(r, percentile=to_pr(int(r.percentile)))
-    )
+    sub = sub.map(lambda r: dataclasses.replace(r, age_eq=to_age(r.age_eq)))
 
     return sub, comp, rep
 
@@ -289,9 +282,7 @@ def report(
         ("Globale visuelle Wahrnehmung", 2),
     ]:
         c = comp.rows[i]
-        rep.add_line(
-            f"{n}: PR {to_pr(int(c.percentile))} - {lvl_idx(c.index, True)[0]}"
-        )
+        rep.add_line(f"{n}: PR {to_pr(c.percentile)} - {lvl_idx(c.index, True)[0]}")
 
     rep.add_line()
     rep.add_line("Subtests:")

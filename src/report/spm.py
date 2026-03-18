@@ -96,7 +96,7 @@ class Result:
     id: str
     raw: int
     t: int | None
-    percentile: str | None
+    percentile: int | None
     interpretive: str | None
     level: int | None
 
@@ -151,9 +151,15 @@ def _report(
         if not s:
             rep.add_line()
             continue
-        rep.add_line(
-            f'{s[1]}: PR {res.filter(id=s[0]).item().percentile} - "{get_int(s[0])}"'
-        )
+        percentile = res.filter(id=s[0]).item().percentile
+
+        def per(p: int) -> str:
+            if p == 100:
+                return ">99"
+            return str(p)
+
+        if percentile is not None:
+            rep.add_line(f'{s[1]}: PR {per(percentile)} - "{get_int(s[0])}"')
 
     if ver == 2:
         rep.add_line()
@@ -210,11 +216,6 @@ def process(
         [raw["vis"], raw["hea"], raw["tou"], raw["t&s"], raw["bod"], raw["bal"]]
     )
 
-    def per(p: int) -> str:
-        if p == 100:
-            return ">99"
-        return str(p)
-
     def inter(t: int) -> tuple[str, int]:
         if t < 60:
             return (typical, 0)
@@ -235,7 +236,7 @@ def process(
             id=i,
             raw=r,
             t=t_val,
-            percentile=per(row.percentile),
+            percentile=row.percentile,
             interpretive=interpretive,
             level=level,
         )
