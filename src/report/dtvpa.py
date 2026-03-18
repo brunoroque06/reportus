@@ -81,8 +81,8 @@ class Sub:
     id: str
     label: str
     raw: int
-    percentile: int
     standard: int
+    percentile: int
     description: str
     level: int
 

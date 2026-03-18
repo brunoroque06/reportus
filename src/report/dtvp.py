@@ -167,8 +167,8 @@ class SubRow:
     label: str
     raw: int
     age_eq: str
-    percentile: int
     scaled: int
+    percentile: int
     descriptive: str
     level: int
 
@@ -177,9 +177,9 @@ class SubRow:
 class CompRow:
     id: str
     sum_scaled: int
+    index: int
     percentile: int
     descriptive: str
-    index: int
     level: int
 
 
