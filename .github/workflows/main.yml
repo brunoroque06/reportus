@@ -9,11 +9,4 @@ jobs:
         with:
           python-version: 3.14
           cache: pip
-      - run: pip install '.' '.[dev]' '.[test]'
-      - run: ruff check --select I
-      - run: ruff check
-      - run: ruff format --check
-      - run: pyright
-      - run: pytest test
-      - run: playwright install-deps && playwright install chromium
-      - run: pytest e2e
+      - run: make ci
