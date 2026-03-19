@@ -20,4 +20,7 @@ def test_dtvpa():
     assert [r.index for r in comp.rows] == [78, 81, 79]
     assert [r.percentile for r in comp.rows] == [7, 10, 8]
 
-    assert len(rep) > 0
+    assert (
+        rep
+        == "Developmental Test of Visual Perception - Adolescent and Adult (DTVP-A) - (19.03.2026)\n\nVisuomotorische Integration: PR 8 - Weit unter der Norm\nMotorik-Reduzierte Wahrnehmung: PR 10 - Unter der Norm\nGlobale Visuelle Wahrnehmung: PR 7 - Weit unter der Norm\n\nSubtests:\nAbzeichnen: PR 25 - durchschnittlich\nFigur-Grund: PR 9 - unterdurchschnittlich\nVisuomotorisches Suchen: PR 9 - unterdurchschnittlich\nGesaltschliessen: PR 25 - durchschnittlich\nVisuomotorische Geschwindigkeit: PR 9 - unterdurchschnittlich\nFormkonstanz: PR 16 - unterdurchschnittlich"
+    )

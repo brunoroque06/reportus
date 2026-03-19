@@ -11,7 +11,7 @@ def test_data(ver: spm.Version):
 
 
 @pytest.mark.parametrize(
-    ("form", "ver", "raw", "ts"),
+    ("form", "ver", "raw", "ts", "exp_rep"),
     [
         (
             "Classroom",
@@ -36,6 +36,7 @@ def test_data(ver: spm.Version):
                 "pln": 70,
                 "st": 63,
             },
+            'Sensory Processing Measure (SPM 1): Classroom Form\nFragebogen zur sensorischen Verarbeitung ausgefüllt von ignore des Kindes (03.2026)\n\nVision: PR 16 - "Typical"\nHearing: PR 97 - "Some Problems"\nTouch: PR 90 - "Some Problems"\nBody Awareness: PR 76 - "Typical"\nBalance and Motion: PR 98 - "Definite Dysfunction"\n\nGesamttestwert: PR 90 - "Some Problems"\n\nPlanning and Ideas: PR 97 - "Definite Dysfunction"\nSocial: PR 92 - "Some Problems"',
         ),
         (
             "Home",
@@ -60,6 +61,7 @@ def test_data(ver: spm.Version):
                 "pln": 72,
                 "st": 63,
             },
+            'Sensory Processing Measure (SPM 1): Home Form\nElternfragebogen zur sensorischen Verarbeitung ausgefüllt von ignore des Kindes (03.2026)\nDie Fähigkeit, sensorische Reize zu verarbeiten, beeinflusst die motorischen und selbstregulativen Fähigkeiten eines Kindes sowie sein soziales Verhalten.\n\nVision: PR 76 - "Typical"\nHearing: PR 82 - "Typical"\nTouch: PR 90 - "Some Problems"\nBody Awareness: PR 95 - "Some Problems"\nBalance and Motion: PR 90 - "Some Problems"\n\nGesamttestwert: PR 90 - "Some Problems"\n\nPlanning and Ideas: PR 98 - "Definite Dysfunction"\nSocial: PR 95 - "Some Problems"',
         ),
         (
             "Home",
@@ -84,10 +86,17 @@ def test_data(ver: spm.Version):
                 "pln": 71,
                 "st": 59,
             },
+            'Sensory Processing Measure (SPM 2): Home Form\nElternfragebogen zur sensorischen Verarbeitung ausgefüllt von ignore des Kindes (03.2026)\nDie Fähigkeit, sensorische Reize zu verarbeiten, beeinflusst die motorischen und selbstregulativen Fähigkeiten eines Kindes sowie sein soziales Verhalten.\n\nVision: PR 69 - "Typical"\nHearing: PR 38 - "Typical"\nTouch: PR 90 - "Moderate Difficulties"\nTaste and Smell: PR 16 - "Typical"\nBody Awareness: PR 96 - "Moderate Difficulties"\nBalance and Motion: PR 95 - "Moderate Difficulties"\n\nGesamttestwert: PR 82 - "Typical"\n\nPlanning and Ideas: PR 98 - "Severe Difficulties"\nSocial: PR 93 - "Moderate Difficulties"\n\n sensorisches Profil liegt im Bereich "Typical" und ist somit unauffällig.',
         ),
     ],
 )
-def test_spm(form: spm.Form, ver: spm.Version, raw: dict[str, int], ts: dict[str, int]):
+def test_spm(
+    form: spm.Form,
+    ver: spm.Version,
+    raw: dict[str, int],
+    ts: dict[str, int],
+    exp_rep: str,
+):
     today = datetime.date.today()
 
     res, rep = spm.process(today, form, ver, spm.Filer(None, "ignore"), "", raw)
@@ -95,4 +104,4 @@ def test_spm(form: spm.Form, ver: spm.Version, raw: dict[str, int], ts: dict[str
     for i, t in ts.items():
         assert res.filter(id=i).item().t == t
 
-    assert len(rep) > 0
+    assert rep == exp_rep

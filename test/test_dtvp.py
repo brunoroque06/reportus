@@ -34,4 +34,7 @@ def test_dtvp():
     ]
     assert [r.index for r in comp.rows] == [61, 100, 84]
 
-    assert len(rep) > 0
+    assert (
+        rep
+        == "Developmental Test of Visual Perception (DTVP-3) - 19.03.2026\n\nVisuomotorische Integration: PR <1 - Weit unter der Norm\nVisuelle Wahrnehmung mit reduzierter motorischer Reaktion: PR 50 - Norm\nGlobale visuelle Wahrnehmung: PR 14 - Unter der Norm\n\nSubtests:\nAugen-Hand-Koordination: 4;3 J (weit unterdurchschnittlich)\nAbzeichnen: 4;8 J (unterdurchschnittlich)\nFigur-Grund: 10;5 J (durchschnittlich)\nGesaltschliessen: 5;10 J (durchschnittlich)\nFormkonstanz: 6;3 J (durchschnittlich)"
+    )

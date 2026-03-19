@@ -9,7 +9,7 @@ def test_data():
 
 
 @pytest.mark.parametrize(
-    ("age", "raw", "comp_res", "agg_res"),
+    ("age", "raw", "comp_res", "agg_res", "exp_rep"),
     [
         (
             Delta(years=6),
@@ -45,6 +45,7 @@ def test_data():
                 "hg": 5,
                 "total": 3,
             },
+            "Movement Assessment Battery for Children 2nd Edition (M-ABC 2) - 19.03.2026\nProtokollbogen Altersgruppe: 3-6 Jahre\n\nHandgeschicklichkeit: PR 5.0 - therapiebedürftig\nHändigkeit: Rechts\nBallfertigkeit: PR 0.1 - therapiebedürftig\nBalance: PR 9.0 - kritisch\n\nGesamttestwert: PR 1.0 - therapiebedürftig",
         ),
         (
             Delta(years=9),
@@ -83,6 +84,7 @@ def test_data():
                 "hg": 9,
                 "total": 8,
             },
+            "Movement Assessment Battery for Children 2nd Edition (M-ABC 2) - 19.03.2026\nProtokollbogen Altersgruppe: 7-10 Jahre\n\nHandgeschicklichkeit: PR 37.0 - unauffällig\nHändigkeit: Rechts\nBallfertigkeit: PR 75.0 - unauffällig\nBalance: PR 9.0 - kritisch\n\nGesamttestwert: PR 25.0 - unauffällig",
         ),
         (
             Delta(years=12),
@@ -121,6 +123,7 @@ def test_data():
                 "hg": 8,
                 "total": 8,
             },
+            "Movement Assessment Battery for Children 2nd Edition (M-ABC 2) - 19.03.2026\nProtokollbogen Altersgruppe: 11-16 Jahre\n\nHandgeschicklichkeit: PR 25.0 - unauffällig\nHändigkeit: Rechts\nBallfertigkeit: PR 84.0 - unauffällig\nBalance: PR 9.0 - kritisch\n\nGesamttestwert: PR 25.0 - unauffällig",
         ),
     ],
 )
@@ -129,6 +132,7 @@ def test_mabc(
     raw: dict[str, int | None],
     comp_res: dict[str, int],
     agg_res: dict[str, int],
+    exp_rep: str,
 ):
     comp, agg, rep = mabc.process(age, raw)
 
@@ -138,4 +142,4 @@ def test_mabc(
     for k, v in agg_res.items():
         assert agg.filter(id=k).item().standard == v
 
-    assert len(rep) > 0
+    assert rep == exp_rep
