@@ -2,7 +2,7 @@ import dataclasses
 import datetime
 import itertools
 
-from src import table, time
+from src import string, table, time
 from src.report import dtvp
 
 
@@ -98,38 +98,42 @@ class Comp:
 
 
 def report(asmt: datetime.date, sub: table.Table[Sub], comp: table.Table[Comp]) -> str:
-    return "\n".join(
-        [
-            f"Developmental Test of Visual Perception - Adolescent and Adult (DTVP-A) - ({time.format_date(asmt)})",
-            "",
-        ]
-        + [
-            f"{n}: PR {dtvp.to_pr(comp.filter(id=i).item().percentile)} - {dtvp.lvl_idx(comp.filter(id=i).item().index, True)[0]}"
-            for n, i in [
-                ("Visuomotorische Integration", "Visual-Motor Integration (VMII)"),
-                (
-                    "Motorik-Reduzierte Wahrnehmung",
-                    "Motor-Reduced Visual Perception (MRPI)",
-                ),
-                ("Globale Visuelle Wahrnehmung", "General Visual Perception (GVPI)"),
-            ]
-        ]
-        + [
-            "",
-            "Subtests:",
-        ]
-        + [
-            f"{n}: PR {dtvp.to_pr(sub.filter(id=i).item().percentile)} - {dtvp.lvl_sca(sub.filter(id=i).item().standard, True)[0]}"
-            for n, i in [
-                ("Abzeichnen", "co"),
-                ("Figur-Grund", "fg"),
-                ("Visuomotorisches Suchen", "vse"),
-                ("Gesaltschliessen", "vc"),
-                ("Visuomotorische Geschwindigkeit", "vsp"),
-                ("Formkonstanz", "fc"),
-            ]
-        ]
+    rep = string.StrBuilder()
+    rep.add(
+        f"Developmental Test of Visual Perception - Adolescent and Adult (DTVP-A) - ({time.format_date(asmt)})"
     )
+    rep.add()
+
+    for n, i in [
+        ("Visuomotorische Integration", "Visual-Motor Integration (VMII)"),
+        (
+            "Motorik-Reduzierte Wahrnehmung",
+            "Motor-Reduced Visual Perception (MRPI)",
+        ),
+        ("Globale Visuelle Wahrnehmung", "General Visual Perception (GVPI)"),
+    ]:
+        row = comp.filter(id=i).item()
+        rep.add(
+            f"{n}: PR {dtvp.to_pr(row.percentile)} - {dtvp.lvl_idx(row.index, True)[0]}"
+        )
+
+    rep.add()
+    rep.add("Subtests:")
+
+    for n, i in [
+        ("Abzeichnen", "co"),
+        ("Figur-Grund", "fg"),
+        ("Visuomotorisches Suchen", "vse"),
+        ("Gesaltschliessen", "vc"),
+        ("Visuomotorische Geschwindigkeit", "vsp"),
+        ("Formkonstanz", "fc"),
+    ]:
+        row = sub.filter(id=i).item()
+        rep.add(
+            f"{n}: PR {dtvp.to_pr(row.percentile)} - {dtvp.lvl_sca(row.standard, True)[0]}"
+        )
+
+    return rep.build()
 
 
 def process(

@@ -114,16 +114,16 @@ def _report(
     rep = string.StrBuilder()
     fil = filer.name if filer.prep is None else f"{filer.prep} {filer.name}"
     if form == "Classroom":
-        rep.add_line(f"Sensory Processing Measure ({spm}): Classroom Form")
-        rep.add_line(
+        rep.add(f"Sensory Processing Measure ({spm}): Classroom Form")
+        rep.add(
             f"Fragebogen zur sensorischen Verarbeitung ausgefüllt von {fil} des Kindes ({asmt_fmt})"
         )
     else:
-        rep.add_line(f"Sensory Processing Measure ({spm}): Home Form")
-        rep.add_line(
+        rep.add(f"Sensory Processing Measure ({spm}): Home Form")
+        rep.add(
             f"Elternfragebogen zur sensorischen Verarbeitung ausgefüllt von {fil} des Kindes ({asmt_fmt})"
         )
-        rep.add_line(
+        rep.add(
             "Die Fähigkeit, sensorische Reize zu verarbeiten, beeinflusst die motorischen und selbstregulativen Fähigkeiten eines Kindes sowie sein soziales Verhalten."
         )
 
@@ -149,7 +149,7 @@ def _report(
 
     for s in scores:
         if not s:
-            rep.add_line()
+            rep.add()
             continue
         percentile = res.filter(id=s[0]).item().percentile
 
@@ -159,21 +159,21 @@ def _report(
             return str(p)
 
         if percentile is not None:
-            rep.add_line(f'{s[1]}: PR {per(percentile)} - "{get_int(s[0])}"')
+            rep.add(f'{s[1]}: PR {per(percentile)} - "{get_int(s[0])}"')
 
     if ver == 2:
-        rep.add_line()
+        rep.add()
         if get_int("st") == typical:
-            rep.add_line(
+            rep.add(
                 f'{name} sensorisches Profil liegt im Bereich "Typical" und ist somit unauffällig.'
             )
         else:
-            rep.add_line("Zusammenfassung der sensorischen Verarbeitung des Kindes:")
-            rep.add_line()
-            rep.add_line(
+            rep.add("Zusammenfassung der sensorischen Verarbeitung des Kindes:")
+            rep.add()
+            rep.add(
                 f'{name} sensorisches Profil liegt im Bereich "Moderate Difficulties" (Gesamttestwert). Es zeigen sich Auffälligkeiten in mehreren sensorischen Systemen, welche sich in folgenden beobachtbaren Verhaltensweisen widerspiegeln:',
             )
-            rep.add_line()
+            rep.add()
             scores = [
                 ("Sehen", "vis"),
                 ("Hören", "hea"),
@@ -187,16 +187,16 @@ def _report(
                 return "unauffällig" if get_int(k) == typical else ""
 
             for l, k in scores:
-                rep.add_line(f"{l}: {summary_score(k)}")
+                rep.add(f"{l}: {summary_score(k)}")
 
             if get_int("pln") != typical or get_int("soc") != typical:
-                rep.add_line()
-                rep.add_line("Auswirkungen auf den Alltag:")
-                rep.add_line()
-                rep.add_line("Planung und Ideenfindung: " + summary_score("pln"))
-                rep.add_line("Soziale Teilhabe: " + summary_score("soc"))
+                rep.add()
+                rep.add("Auswirkungen auf den Alltag:")
+                rep.add()
+                rep.add("Planung und Ideenfindung: " + summary_score("pln"))
+                rep.add("Soziale Teilhabe: " + summary_score("soc"))
 
-    return str(rep)
+    return rep.build()
 
 
 def process(

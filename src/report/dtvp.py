@@ -271,10 +271,10 @@ def report(
 ) -> str:
     rep = string.StrBuilder()
 
-    rep.add_line(
+    rep.add(
         f"Developmental Test of Visual Perception (DTVP-3) - {time.format_date(asmt)}"
     )
-    rep.add_line()
+    rep.add()
 
     for n, i in [
         ("Visuomotorische Integration", 0),
@@ -282,10 +282,10 @@ def report(
         ("Globale visuelle Wahrnehmung", 2),
     ]:
         c = comp.rows[i]
-        rep.add_line(f"{n}: PR {to_pr(c.percentile)} - {lvl_idx(c.index, True)[0]}")
+        rep.add(f"{n}: PR {to_pr(c.percentile)} - {lvl_idx(c.index, True)[0]}")
 
-    rep.add_line()
-    rep.add_line("Subtests:")
+    rep.add()
+    rep.add("Subtests:")
 
     for n, i in [
         ("Augen-Hand-Koordination", 0),
@@ -295,6 +295,6 @@ def report(
         ("Formkonstanz", 4),
     ]:
         s = sub.rows[i]
-        rep.add_line(f"{n}: {to_age(s.age_eq)} J ({lvl_sca(s.scaled, True)[0]})")
+        rep.add(f"{n}: {to_age(s.age_eq)} J ({lvl_sca(s.scaled, True)[0]})")
 
-    return str(rep)
+    return rep.build()

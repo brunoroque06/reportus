@@ -234,16 +234,16 @@ def report(
 
     rep = string.StrBuilder()
 
-    rep.add_line(
+    rep.add(
         f"Movement Assessment Battery for Children 2nd Edition (M-ABC 2) - {time.format_date(asmt)}"
     )
-    rep.add_line(f"Protokollbogen Altersgruppe: {group} Jahre")
-    rep.add_line()
-    rep.add_line(f"Handgeschicklichkeit: PR {perc('hg')} - {level_str(std('hg'))}")
-    rep.add_line(f"Händigkeit: {'Rechts' if hand == 'Right' else 'Links'}")
-    rep.add_line(f"Ballfertigkeit: PR {perc('bf')} - {level_str(std('bf'))}")
-    rep.add_line(f"Balance: PR {perc('bl')} - {level_str(std('bl'))}")
-    rep.add_line()
-    rep.add_line(f"Gesamttestwert: PR {tot.percentile} - {level_str(tot.standard)}")
+    rep.add(f"Protokollbogen Altersgruppe: {group} Jahre")
+    rep.add()
+    rep.add(f"Handgeschicklichkeit: PR {perc('hg')} - {level_str(std('hg'))}")
+    rep.add(f"Händigkeit: {'Rechts' if hand == 'Right' else 'Links'}")
+    rep.add(f"Ballfertigkeit: PR {perc('bf')} - {level_str(std('bf'))}")
+    rep.add(f"Balance: PR {perc('bl')} - {level_str(std('bl'))}")
+    rep.add()
+    rep.add(f"Gesamttestwert: PR {tot.percentile} - {level_str(tot.standard)}")
 
-    return str(rep)
+    return rep.build()
