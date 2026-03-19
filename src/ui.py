@@ -65,7 +65,12 @@ def dates(
     return asmt, birth, age
 
 
-def table(table: Table[Any], title: str | None = None, hide_cols: list[str] = []):
+def table(
+    table: Table[Any], title: str | None = None, hide_cols: list[str] | None = None
+):
+    if hide_cols is None:
+        hide_cols = []
+
     dicts = table.to_dicts()
 
     if title:
