@@ -186,11 +186,8 @@ class CompRow:
 def process(
     age: time.Delta,
     raw: dict[str, int],
-    asmt: datetime.date | None = None,
+    asmt: datetime.date,
 ) -> tuple[table.Table[SubRow], table.Table[CompRow], str]:
-    if asmt is None:
-        asmt = datetime.date.today()
-
     ra, rs, sp = _load()
 
     tests = get_tests()

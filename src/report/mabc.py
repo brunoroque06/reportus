@@ -169,12 +169,9 @@ class AggResultRow:
 def process(
     age: time.Delta,
     raw: dict[str, typing.Optional[int]],
-    asmt: datetime.date | None = None,
+    asmt: datetime.date,
     hand: str = "Right",
 ) -> tuple[table.Table[CompResultRow], table.Table[AggResultRow], str]:
-    if asmt is None:
-        asmt = datetime.date.today()
-
     map_i, map_t = _load()
 
     comp = _process_comp(map_i, age.years, raw)

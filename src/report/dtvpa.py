@@ -139,11 +139,8 @@ def report(asmt: datetime.date, sub: table.Table[Sub], comp: table.Table[Comp]) 
 def process(
     age: time.Delta,
     raw: dict[str, int],
-    asmt: datetime.date | None = None,
+    asmt: datetime.date,
 ) -> tuple[table.Table[Sub], table.Table[Comp], str]:
-    if asmt is None:
-        asmt = datetime.date.today()
-
     std, sums = _load()
 
     tests = get_tests()
