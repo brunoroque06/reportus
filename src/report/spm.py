@@ -3,7 +3,7 @@ import datetime
 import itertools
 from typing import Literal
 
-from src import string, table, time
+from src import string, table, time, ui
 
 Form = Literal["Classroom", "Home"]
 Version = Literal[1, 2]
@@ -57,6 +57,7 @@ class Spm:
     type: str
 
 
+@ui.cache
 def _load() -> table.Table[Spm]:
     classroom = table.read_csv("public/spm-classroom.csv", Spm)
     home = table.read_csv("public/spm-home.csv", Spm)

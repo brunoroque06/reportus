@@ -2,7 +2,7 @@ import dataclasses
 import datetime
 import itertools
 
-from src import string, table, time
+from src import string, table, time, ui
 from src.report import dtvp
 
 
@@ -25,6 +25,7 @@ class Sum:
     percentile: int
 
 
+@ui.cache
 def _load() -> tuple[table.Table[Std], table.Table[Sum]]:
     std = table.read_csv("public/dtvpa-std.csv", Std)
     sums = table.read_csv("public/dtvpa-sum.csv", Sum)

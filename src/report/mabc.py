@@ -4,7 +4,7 @@ import itertools
 import math
 import typing
 
-from src import string, table, time
+from src import string, table, time, ui
 
 
 @dataclasses.dataclass(frozen=True)
@@ -28,6 +28,7 @@ class TRow:
     rank: int
 
 
+@ui.cache
 def _load() -> tuple[table.Table[IRow], table.Table[TRow]]:
     map_i = table.read_csv("public/mabc-i.csv", IRow)
     map_t = table.read_csv("public/mabc-t.csv", TRow)
