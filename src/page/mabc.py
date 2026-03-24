@@ -16,51 +16,51 @@ def display_age(a: Delta) -> ui.Color:
 
 
 def page():
-    left, right = ui.structure("MABC")
+    hori, vert = ui.structure("MABC")
 
-    with left:
-        asmt_date, _, age = ui.dates(5, 16, display_age, key="mabc")
+    with hori():
+        with vert():
+            asmt_date, _, age = ui.dates(5, 16, disp=display_age, key="mabc")
 
-        comps = mabc.get_comps(age)
-        comp_ids = list(comps.keys())
+            comps = mabc.get_comps(age)
+            comp_ids = list(comps.keys())
 
-        cols = st.columns([1, 2])
-        with cols[0]:
-            hand = st.selectbox("Preferred Hand", ("Right", "Left"))
+            cols = st.columns([1, 2])
+            with cols[0]:
+                hand = st.selectbox("Preferred Hand", ("Right", "Left"))
 
-        with cols[1]:
-            failed = st.multiselect("Failed", mabc.get_failed(), format_func=str.upper)
-
-        cols = st.columns(len(comp_ids))
-
-        raw: dict[str, typing.Optional[int]] = {}
-
-        for i, col in enumerate(cols):
-            comp_id = comp_ids[i]
-            col.markdown(f"***{comp_id}***")
-            for exe in comps[comp_id]:
-                raw[exe] = col.number_input(
-                    label=exe.upper(),
-                    min_value=0,
-                    max_value=150,
-                    step=1,
-                    disabled=(exe in failed),
+            with cols[1]:
+                failed = st.multiselect(
+                    "Failed", mabc.get_failed(), format_func=str.upper, width=512
                 )
 
-        for f in failed:
-            raw[f] = None
+            cols = st.columns(len(comp_ids))
 
-        comp, agg, rep = mabc.process(age, raw, asmt=asmt_date, hand=hand)
-        ui.text(rep)
+            raw: dict[str, typing.Optional[int]] = {}
 
-    with right:
-        for c in [
-            ("Handgeschicklichkeit", "hg"),
-            ("Ballfertigkeiten", "bf"),
-            ("Balance", "bl"),
-        ]:
-            t = comp.filter(id=lambda i: i.startswith(c[1]))  # pyright: ignore[reportUnknownMemberType]
-            t = t.sort(key=lambda r: r.id if len(r.id) == 4 else r.id + "z")
-            ui.table(t, c[0])
+            for i, col in enumerate(cols):
+                comp_id = comp_ids[i]
+                col.markdown(f"***{comp_id}***")
+                for exe in comps[comp_id]:
+                    raw[exe] = col.number_input(
+                        label=exe.upper(),
+                        min_value=0,
+                        max_value=150,
+                        step=1,
+                        disabled=(exe in failed),
+                    )
 
-        ui.table(agg, "Aggregated")
+            for f in failed:
+                raw[f] = None
+
+        with vert():
+            comp, agg, rep = mabc.process(age, raw, asmt=asmt_date, hand=hand)
+            ui.text(rep)
+
+            with hori():
+                for c in ["hg", "bf", "bl"]:
+                    t = comp.filter(id=lambda i: i.startswith(c))  # pyright: ignore[reportUnknownMemberType]
+                    t = t.sort(key=lambda r: r.id if len(r.id) == 4 else r.id + "z")
+                    ui.table(t)
+
+            ui.table(agg)

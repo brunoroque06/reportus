@@ -13,7 +13,18 @@ def header(title: str):
 
 def structure(title: str):
     st.subheader(title)
-    return st.columns([0.40, 0.60])
+
+    def hori():
+        return st.container(horizontal=True, width="content")
+
+    def vert():
+        return st.container(
+            horizontal=False,
+            horizontal_alignment="center",
+            width="content",
+        )
+
+    return hori, vert
 
 
 def date_input(label: str, date: datetime.date, key: str | None = None, **kwargs: Any):
@@ -29,15 +40,15 @@ def dates(
     disp: Callable[[Delta], Color] = lambda _: "blue",
     key: str | None = None,
 ) -> tuple[datetime.date, datetime.date, Delta]:
-    col1, col2, _ = st.columns(3)
+    cols = st.columns(2)
 
     today = datetime.date.today()
-    with col1:
+    with cols[0]:
         asmt = date_input(
             "Assessment", today, key=f"{key}_asmt" if key else None, max_value=today
         )
 
-    with col2:
+    with cols[1]:
         birth = date_input(
             "Birthday",
             minus_delta(
@@ -55,23 +66,14 @@ def dates(
     return asmt, birth, age
 
 
-def table(
-    table: Table[Any], title: str | None = None, hide_cols: list[str] | None = None
-):
+def table(table: Table[Any], hide_cols: list[str] | None = None):
     if hide_cols is None:
         hide_cols = []
 
     dicts = table.to_dicts()
 
-    if title:
-        st.text(title)
-
-    def level_map(l: str) -> str:
-        if l == "0":
-            return "OK"
-        if l == "1":
-            return "-"
-        return "X"
+    def map_level(l: str) -> str:
+        return {"0": "↑", "1": "→"}.get(l, "↓")
 
     st.dataframe(  # pyright: ignore[reportUnknownMemberType]
         dicts,
@@ -86,7 +88,7 @@ def table(
                 ],
                 color=["green", "yellow", "red", "red"],
                 disabled=True,
-                format_func=level_map,
+                format_func=map_level,
             ),
             "percentile": st.column_config.ProgressColumn(
                 format="%.1f %%", label="%", max_value=100
@@ -94,11 +96,12 @@ def table(
             **{c: None for c in hide_cols},
         },
         hide_index=True,
+        width="content",
     )
 
 
 def text(txt: str):
-    st.code(txt, language=None, wrap_lines=True)
+    st.code(txt, language=None, wrap_lines=True, width="content")
 
 
 cache = st.cache_data

@@ -20,22 +20,20 @@ def page(rep: typing.Literal["dtvp3", "dtvpa"]) -> None:
         get_tests = dtvpa.get_tests
         process = dtvpa.process
 
-    left, right = ui.structure(title)
+    hori, vert = ui.structure(title)
 
-    with left:
-        asmt_date, _, age = ui.dates(min_age, max_age, key=rep)
+    with hori():
+        with vert():
+            asmt_date, _, age = ui.dates(min_age, max_age, key=rep)
 
-        raw: dict[str, int] = {}
-        tests = get_tests()
+            raw: dict[str, int] = {}
+            tests = get_tests()
 
-        cols = st.columns(3)
-        for k, v in tests.items():
-            with cols[1]:
+            for k, v in tests.items():
                 raw[k] = st.number_input(v, step=1)
 
-        sub, comp, report = process(age, raw, asmt_date)
-        ui.text(report)
-
-    with right:
-        ui.table(sub, hide_cols=["id"])
-        ui.table(comp)
+        with vert():
+            sub, comp, report = process(age, raw, asmt_date)
+            ui.text(report)
+            ui.table(sub, hide_cols=["id"])
+            ui.table(comp)
