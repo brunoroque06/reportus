@@ -11,9 +11,7 @@ dev = [
   "watchdog==6.0.0",
 ]
 test = [
-  "playwright==1.58.0",
   "pytest==9.0.2",
-  "pytest-playwright==0.7.2",
 ]
 
 [build-system]

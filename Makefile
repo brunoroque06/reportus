@@ -17,8 +17,6 @@ test-unit:
 	pytest test
 
 test-e2e:
-	playwright install-deps
-	playwright install chromium
 	pytest e2e
 
 type-check:

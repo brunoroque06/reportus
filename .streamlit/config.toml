@@ -1,6 +1,9 @@
 [client]
 toolbarMode = "minimal"
 
+[server]
+runOnSave = true
+
 [browser]
 gatherUsageStats = false
 
