@@ -13,7 +13,7 @@ def header(title: str):
 
 def structure(title: str):
     st.subheader(title)
-    return st.columns([0.45, 0.55])
+    return st.columns([0.40, 0.60])
 
 
 def date_input(label: str, date: datetime.date, key: str | None = None, **kwargs: Any):
@@ -29,7 +29,7 @@ def dates(
     disp: Callable[[Delta], Color] = lambda _: "blue",
     key: str | None = None,
 ) -> tuple[datetime.date, datetime.date, Delta]:
-    col1, col2, col3 = st.columns([1, 1, 2])
+    col1, col2, _ = st.columns(3)
 
     today = datetime.date.today()
     with col1:
@@ -47,20 +47,10 @@ def dates(
             max_value=minus_delta(asmt, Delta(min_years)),
             min_value=minus_delta(asmt, Delta(years=max_years - 1, days=364)),
         )
-
-    age = to_delta(birth, asmt)
-
-    with col3:
-        st.text(" ")
-        age_disp = f"Age: {age.years} years, {age.months} months, {age.days} days"
+        age = to_delta(birth, asmt)
+        age_disp = f"{age.years} years {age.months} months {age.days} days"
         color = disp(age)
-        age_comp = st.info
-        if color == "green":
-            age_comp = st.success
-        elif color == "red":
-            age_comp = st.error
-        age_comp(age_disp, icon="🎂")
-        # st.color_picker(..., disabled=True, label_visibility="collapsed") is an alternative
+        st.badge(age_disp, color=color, icon=":material/cake:")
 
     return asmt, birth, age
 
