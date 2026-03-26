@@ -17,8 +17,9 @@ def page():
                 return ver == 1
 
             with hori():
-                ver = st.selectbox("Version", (1, 2))
                 asmt = ui.date_input("Assessment", today, key="spm", max_value=today)
+            with hori():
+                ver = st.selectbox("Version", (1, 2))
                 form = st.selectbox("Form", spm.forms(ver))
                 filer = st.selectbox(
                     "Filled by",
