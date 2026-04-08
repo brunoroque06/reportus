@@ -1,7 +1,10 @@
 [project]
 name = "reportus"
 version = "0.1.0"
-dependencies = ["python-dateutil==2.9.0.post0", "streamlit==1.55.0"]
+dependencies = [
+  "python-dateutil==2.9.0.post0",
+  "streamlit==1.56.0",
+]
 
 [project.optional-dependencies]
 dev = [

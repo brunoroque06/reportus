@@ -7,7 +7,7 @@ fmt-check:
 	ruff format --check
 
 install:
-	pip install '.' '.[dev]' '.[test]'
+	pip install . '.[dev]' '.[test]'
 
 lint:
 	ruff check --select I
