@@ -97,7 +97,7 @@ def test_spm(
     ts: dict[str, int],
     exp_rep: str,
 ):
-    today = datetime.date.today()
+    today = datetime.date(2026, 3, 1)
 
     res, rep = spm.process(today, form, ver, spm.Filer(None, "ignore"), "", raw)
 
