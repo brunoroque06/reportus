@@ -1,22 +1,20 @@
 import calendar
-import dataclasses
-import datetime
+from dataclasses import dataclass
+from datetime import date, timedelta
 
 
-def format_date(d: datetime.date, inc_day: bool = True) -> str:
-    if inc_day:
-        return d.strftime("%d.%m.%Y")
-    return d.strftime("%m.%Y")
+def format_date(dat: date, day: bool = True) -> str:
+    return dat.strftime("%d.%m.%Y" if day else "%m.%Y")
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclass(frozen=True)
 class Delta:
     years: int
     months: int = 0
     days: int = 0
 
 
-def to_delta(start: datetime.date, end: datetime.date) -> Delta:
+def to_delta(start: date, end: date) -> Delta:
     year, month, day = end.year, end.month, end.day
 
     if day < start.day:
@@ -33,9 +31,11 @@ def to_delta(start: datetime.date, end: datetime.date) -> Delta:
     return Delta(year - start.year, month - start.month, day - start.day)
 
 
-def minus_delta(date: datetime.date, delta: Delta) -> datetime.date:
-    total_months = (date.year * 12 + date.month - 1) - (delta.years * 12 + delta.months)
+def minus_delta(start: date, delta: Delta) -> date:
+    total_months = (start.year * 12 + start.month - 1) - (
+        delta.years * 12 + delta.months
+    )
     year, month = divmod(total_months, 12)
     month += 1
-    day = min(date.day, calendar.monthrange(year, month)[1])
-    return datetime.date(year, month, day) - datetime.timedelta(days=delta.days)
+    day = min(start.day, calendar.monthrange(year, month)[1])
+    return date(year, month, day) - timedelta(days=delta.days)
