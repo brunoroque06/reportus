@@ -74,7 +74,7 @@ def test_to_delta(start: datetime.date, end: datetime.date, expected: Delta):
         ),
         (
             datetime.date(year=2019, month=1, day=1),
-            Delta(years=-1, ),
+            Delta(years=-1),
             datetime.date(year=2020, month=1, day=1),
         ),
     ],
