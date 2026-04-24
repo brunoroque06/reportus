@@ -41,7 +41,12 @@ from src.time import Delta, minus_delta, to_delta
         (
             datetime.date(year=2022, month=10, day=19),
             datetime.date(year=2025, month=10, day=19),
-            Delta(3, 0),
+            Delta(3),
+        ),
+        (
+            datetime.date(year=2023, month=2, day=28),
+            datetime.date(year=2024, month=2, day=29),
+            Delta(1, 0, 1),
         ),
     ],
 )
@@ -58,8 +63,18 @@ def test_to_delta(start: datetime.date, end: datetime.date, expected: Delta):
             datetime.date(year=2022, month=1, day=31),
         ),
         (
+            datetime.date(year=2024, month=2, day=29),
+            Delta(years=1),
+            datetime.date(year=2023, month=2, day=28),
+        ),
+        (
             datetime.date(year=2019, month=1, day=1),
             Delta(years=-1),
+            datetime.date(year=2020, month=1, day=1),
+        ),
+        (
+            datetime.date(year=2019, month=1, day=1),
+            Delta(years=-1, ),
             datetime.date(year=2020, month=1, day=1),
         ),
     ],

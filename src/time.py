@@ -1,7 +1,6 @@
+import calendar
 import dataclasses
 import datetime
-
-from dateutil.relativedelta import relativedelta
 
 
 def format_date(d: datetime.date, inc_day: bool = True) -> str:
@@ -18,10 +17,25 @@ class Delta:
 
 
 def to_delta(start: datetime.date, end: datetime.date) -> Delta:
-    delta = relativedelta(end, start)
-    return Delta(delta.years, delta.months, delta.days)
+    year, month, day = end.year, end.month, end.day
+
+    if day < start.day:
+        month -= 1
+        if month == 0:
+            month = 12
+            year -= 1
+        day += calendar.monthrange(year, month)[1]
+
+    if month < start.month:
+        year -= 1
+        month += 12
+
+    return Delta(year - start.year, month - start.month, day - start.day)
 
 
 def minus_delta(date: datetime.date, delta: Delta) -> datetime.date:
-    rel = relativedelta(years=delta.years, months=delta.months, days=delta.days)
-    return date - rel
+    total_months = (date.year * 12 + date.month - 1) - (delta.years * 12 + delta.months)
+    year, month = divmod(total_months, 12)
+    month += 1
+    day = min(date.day, calendar.monthrange(year, month)[1])
+    return datetime.date(year, month, day) - datetime.timedelta(days=delta.days)
