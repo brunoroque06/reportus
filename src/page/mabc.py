@@ -55,7 +55,7 @@ def page():
 
             with hori():
                 for c in ["hg", "bf", "bl"]:
-                    t = comp.filter(id=lambda i: i.startswith(c))  # pyright: ignore[reportUnknownMemberType]
+                    t = comp.filter(id=lambda i: i.startswith(c))
                     t = t.sort(key=lambda r: r.id if len(r.id) == 4 else r.id + "z")
                     ui.table(t)
 

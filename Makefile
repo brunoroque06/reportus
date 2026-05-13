@@ -20,6 +20,6 @@ test-e2e:
 	pytest e2e
 
 type-check:
-	pyright
+	pyrefly check
 
 ci: install fmt-check lint type-check test-unit test-e2e

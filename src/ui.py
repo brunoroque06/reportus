@@ -73,7 +73,7 @@ def table(table: Table[Any], hide_cols: list[str] | None = None):
     def map_level(l: str) -> str:
         return {"0": "↑", "1": "→"}.get(l, "↓")
 
-    st.dataframe(  # pyright: ignore[reportUnknownMemberType]
+    st.dataframe(
         dicts,
         column_config={
             "level": st.column_config.MultiselectColumn(
