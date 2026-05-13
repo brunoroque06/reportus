@@ -24,6 +24,7 @@ packages = ["src"]
 
 [tool.pyrefly]
 preset = "strict"
+search_path = ["."]
 
 [tool.ruff]
 lint.ignore = ["E501", "E741"]
