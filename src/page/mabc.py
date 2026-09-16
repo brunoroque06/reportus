@@ -28,7 +28,7 @@ def page():
             with hori():
                 hand = st.selectbox("Preferred Hand", ("Right", "Left"))
                 failed = st.multiselect(
-                    "Failed", mabc.get_failed(), format_func=str.upper, width=400
+                    "Failed", mabc.get_failed(), format_func=str.upper, width=384
                 )
 
             raw: dict[str, typing.Optional[int]] = {}
