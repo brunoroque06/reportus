@@ -1,5 +1,3 @@
-import typing
-
 import streamlit as st
 
 from src import ui
@@ -31,7 +29,7 @@ def page():
                     "Failed", mabc.get_failed(), format_func=str.upper, width=384
                 )
 
-            raw: dict[str, typing.Optional[int]] = {}
+            raw: dict[str, int | None] = {}
 
             with hori():
                 for comp_id in comp_ids:
@@ -55,7 +53,7 @@ def page():
 
             with hori():
                 for c in ["hg", "bf", "bl"]:
-                    t = comp.filter(id=lambda i: i.startswith(c))
+                    t = comp.filter(id=lambda i, pre=c: i.startswith(pre))
                     t = t.sort(key=lambda r: r.id if len(r.id) == 4 else r.id + "z")
                     ui.table(t)
 

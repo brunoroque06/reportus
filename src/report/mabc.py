@@ -60,14 +60,14 @@ def validate():
     ages = range(age_min, age_max)
     for a in ages:
         ids = [i for lst in get_comps(time.Delta(years=a)).values() for i in lst]
-        raws = range(0, 122)
+        raws = range(122)
 
         for i, r in itertools.product(ids, raws):
             row = _get_i_row(map_i, i, a, r)
             assert row.standard > 0
 
     ids = ["hg", "bf", "bl", "gw"]
-    raws = range(0, 109)
+    raws = range(109)
     for i, r in itertools.product(ids, raws):
         row = _get_t_row(map_t, i, r)
         assert row.standard > 0
@@ -97,7 +97,7 @@ def get_failed() -> list[str]:
 
 
 def _process_comp(
-    map_i: table.Table[IRow], age: int, raw: dict[str, typing.Optional[int]]
+    map_i: table.Table[IRow], age: int, raw: dict[str, int | None]
 ) -> dict[str, tuple[int | None, int]]:
     comp: dict[str, tuple[int | None, int]] = {}
     for k, v in raw.items():
@@ -169,7 +169,7 @@ class AggResultRow:
 
 def process(
     age: time.Delta,
-    raw: dict[str, typing.Optional[int]],
+    raw: dict[str, int | None],
     asmt: datetime.date,
     hand: str = "Right",
 ) -> tuple[table.Table[CompResultRow], table.Table[AggResultRow], str]:

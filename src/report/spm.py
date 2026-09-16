@@ -81,7 +81,7 @@ def validate(ver: Version):
     if ver == 1:
         ids.remove("t&s")
     ids.append("st")
-    raws = range(0, 171)
+    raws = range(171)
 
     for t, i, r in itertools.product(types, ids, raws):
         row = _get_row(data, t + str(ver), i, r)

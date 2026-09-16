@@ -1,10 +1,10 @@
-import datetime
 from typing import Literal
 
 import streamlit as st
 
 from src import ui
 from src.report import spm
+from src.time import today
 
 
 def page():
@@ -12,13 +12,13 @@ def page():
 
     with hori():
         with vert():
-            today = datetime.date.today()
+            date = today()
 
             def ver1():
                 return ver == 1
 
             with hori():
-                asmt = ui.date_input("Assessment", today, key="spm", max_value=today)
+                asmt = ui.date_input("Assessment", date, key="spm", max_value=date)
                 ver: Literal[1, 2] = st.selectbox("Version", (1, 2))
             with hori():
                 form = st.selectbox("Form", spm.forms(ver))

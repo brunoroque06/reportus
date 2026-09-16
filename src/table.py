@@ -1,7 +1,8 @@
 import csv
 import dataclasses
 import typing
-from typing import Any, Callable, ClassVar, Protocol
+from collections.abc import Callable
+from typing import Any, ClassVar, Protocol
 
 
 class DataclassInstance(Protocol):

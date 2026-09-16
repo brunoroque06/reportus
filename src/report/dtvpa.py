@@ -50,7 +50,7 @@ def validate():
     std, sums = _load()
     ids = get_tests().keys()
     ages = range(11, 18)
-    raws = range(0, 109)
+    raws = range(109)
 
     for i, a, r in itertools.product(ids, ages, raws):
         row = _get_std(std, i, time.Delta(years=a), r)

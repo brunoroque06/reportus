@@ -1,10 +1,11 @@
 import datetime
-from typing import Any, Callable, Literal
+from collections.abc import Callable
+from typing import Any, Literal
 
 import streamlit as st
 
 from src.table import Table
-from src.time import Delta, minus_delta, to_delta
+from src.time import Delta, minus_delta, to_delta, today
 
 
 def header(title: str):
@@ -41,10 +42,10 @@ def dates(
     disp: Callable[[Delta], Color] = lambda _: "blue",
     key: str | None = None,
 ) -> tuple[datetime.date, datetime.date, Delta]:
-    today = datetime.date.today()
+    date = today()
     with hori():
         asmt = date_input(
-            "Assessment", today, key=f"{key}_asmt" if key else None, max_value=today
+            "Assessment", date, key=f"{key}_asmt" if key else None, max_value=date
         )
         with vert():
             birth = date_input(

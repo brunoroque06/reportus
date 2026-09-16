@@ -72,13 +72,13 @@ def _get_sp(data: table.Table[ScaPer], i: str, s: int) -> ScaPer:
 def validate():
     ra, rs, sp = _load()
 
-    for i, r in itertools.product(get_tests().keys(), range(0, 188)):
+    for i, r in itertools.product(get_tests().keys(), range(188)):
         row = _get_ra(ra, i, r)
         assert row.age_eq_y >= 0
         assert row.age_eq_m >= 0
 
     for i, y, m, r in itertools.product(
-        get_tests().keys(), range(4, 13), range(0, 12, 2), range(0, 194)
+        get_tests().keys(), range(4, 13), range(0, 12, 2), range(194)
     ):
         row = _get_rs(rs, i, time.Delta(years=y, months=m), r)
         assert row.scaled > 0
