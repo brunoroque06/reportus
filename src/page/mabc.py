@@ -1,3 +1,5 @@
+from collections.abc import Callable
+
 import streamlit as st
 
 from src import ui
@@ -53,7 +55,8 @@ def page():
 
             with hori():
                 for c in ["hg", "bf", "bl"]:
-                    t = comp.filter(id=lambda i, pre=c: i.startswith(pre))
+                    same_cat: Callable[[str], bool] = lambda i, pre=c: i.startswith(pre)
+                    t = comp.filter(id=same_cat)
                     t = t.sort(key=lambda r: r.id if len(r.id) == 4 else r.id + "z")
                     ui.table(t)
 

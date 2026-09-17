@@ -4,6 +4,7 @@ import itertools
 from typing import Literal
 
 from src import string, table, time, ui
+from src.operator import ge, le
 
 Form = Literal["Classroom", "Home"]
 Version = Literal[1, 2]
@@ -69,8 +70,8 @@ def _get_row(data: table.Table[Spm], form: str, i: str, r: int) -> Spm:
     return data.filter(
         type=form,
         id=i,
-        raw_min=lambda v: v <= r,
-        raw_max=lambda v: v >= r,
+        raw_min=le(r),
+        raw_max=ge(r),
     ).item()
 
 

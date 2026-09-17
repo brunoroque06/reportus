@@ -5,6 +5,7 @@ import math
 import typing
 
 from src import string, table, time, ui
+from src.operator import ge, gt, le
 
 
 @dataclasses.dataclass(frozen=True)
@@ -38,18 +39,18 @@ def _load() -> tuple[table.Table[IRow], table.Table[TRow]]:
 def _get_i_row(data: table.Table[IRow], i: str, age: int, r: int) -> IRow:
     return data.filter(
         id=i,
-        age_min=lambda v: v <= age,
-        age_max=lambda v: v > age,
-        raw_min=lambda v: v <= r,
-        raw_max=lambda v: v >= r,
+        age_min=le(age),
+        age_max=gt(age),
+        raw_min=le(r),
+        raw_max=ge(r),
     ).item()
 
 
 def _get_t_row(data: table.Table[TRow], i: str, r: int) -> TRow:
     return data.filter(
         id=i,
-        raw_min=lambda v: v <= r,
-        raw_max=lambda v: v >= r,
+        raw_min=le(r),
+        raw_max=ge(r),
     ).item()
 
 

@@ -3,6 +3,7 @@ import datetime
 import itertools
 
 from src import string, table, time, ui
+from src.operator import ge, gt, le
 from src.report import dtvp
 
 
@@ -35,10 +36,10 @@ def _load() -> tuple[table.Table[Std], table.Table[Sum]]:
 def _get_std(data: table.Table[Std], i: str, age: time.Delta, r: int) -> Std:
     return data.filter(
         id=i,
-        age_min=lambda v: v <= age.years,
-        age_max=lambda v: v > age.years,
-        raw_min=lambda v: v <= r,
-        raw_max=lambda v: v >= r,
+        age_min=le(age.years),
+        age_max=gt(age.years),
+        raw_min=le(r),
+        raw_max=ge(r),
     ).item()
 
 

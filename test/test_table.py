@@ -1,5 +1,6 @@
 import dataclasses
 
+from src.operator import gt
 from src.report.mabc import TRow
 from src.table import Table, from_list, read_csv
 
@@ -31,7 +32,7 @@ def test_filter_by_value():
 
 def test_filter_by_callable():
     t = init_table(("a", 1), ("b", 5), ("c", 3))
-    res = t.filter(value=lambda v: v > 2)
+    res = t.filter(value=gt(2))
     assert [r.name for r in res.rows] == ["b", "c"]
 
 

@@ -3,6 +3,7 @@ import datetime
 import itertools
 
 from src import string, table, time, ui
+from src.operator import ge, le
 
 
 @dataclasses.dataclass(frozen=True)
@@ -46,8 +47,8 @@ def _load() -> tuple[table.Table[RawAge], table.Table[RawSca], table.Table[ScaPe
 def _get_ra(data: table.Table[RawAge], i: str, raw: int) -> RawAge:
     return data.filter(
         id=i,
-        raw_min=lambda v: v <= raw,
-        raw_max=lambda v: v >= raw,
+        raw_min=le(raw),
+        raw_max=ge(raw),
     ).item()
 
 
