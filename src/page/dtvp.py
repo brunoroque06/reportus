@@ -1,7 +1,5 @@
 import typing
 
-import streamlit as st
-
 from src import ui
 from src.report import dtvp, dtvpa
 
@@ -30,7 +28,7 @@ def page(rep: typing.Literal["dtvp3", "dtvpa"]) -> None:
             tests = get_tests()
 
             for k, v in tests.items():
-                raw[k] = st.number_input(v, step=1)
+                raw[k] = ui.number_input(v, step=1)
 
         with vert():
             sub, comp, report = process(age, raw, asmt_date)

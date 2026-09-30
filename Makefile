@@ -13,6 +13,9 @@ lint:
 	ruff check --select I
 	ruff check
 
+serve:
+	python -m http.server
+
 test-unit:
 	pytest test
 

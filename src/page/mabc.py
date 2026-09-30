@@ -1,7 +1,5 @@
 from collections.abc import Callable
 
-import streamlit as st
-
 from src import ui
 from src.report import mabc
 from src.time import Delta
@@ -26,9 +24,9 @@ def page():
             comp_ids = list(comps.keys())
 
             with hori():
-                hand = st.selectbox("Preferred Hand", ("Right", "Left"))
-                failed = st.multiselect(
-                    "Failed", mabc.get_failed(), format_func=str.upper, width=384
+                hand = ui.selectbox("Preferred Hand", ("Right", "Left"))
+                failed = ui.multiselect(
+                    "Failed", mabc.get_failed(), format_func=str.upper
                 )
 
             raw: dict[str, int | None] = {}
@@ -36,9 +34,9 @@ def page():
             with hori():
                 for comp_id in comp_ids:
                     with vert():
-                        st.markdown(f"**{comp_id}**")
+                        ui.markdown(f"**{comp_id}**")
                         for exe in comps[comp_id]:
-                            raw[exe] = st.number_input(
+                            raw[exe] = ui.number_input(
                                 label=exe.upper(),
                                 min_value=0,
                                 max_value=150,

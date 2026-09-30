@@ -97,7 +97,7 @@ def validate():
 
 def get_tests() -> dict[str, str]:
     return {
-        "eh": "Eye-Hand Coordination (EH)",
+        "eh": "Eye-Hand (EH)",
         "co": "Copying (CO)",
         "fg": "Figure-Ground (FG)",
         "vc": "Visual Closure (VC)",

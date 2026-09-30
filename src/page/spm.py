@@ -1,7 +1,5 @@
 from typing import Literal
 
-import streamlit as st
-
 from src import ui
 from src.report import spm
 from src.time import today
@@ -18,11 +16,11 @@ def page():
                 return ver == 1
 
             with hori():
-                ver: Literal[1, 2] = st.selectbox("Version", (1, 2))
+                ver: Literal[1, 2] = ui.selectbox("Version", (1, 2))
                 asmt = ui.date_input("Assessment", date, key="spm", max_value=date)
             with hori():
-                form = st.selectbox("Form", spm.forms(ver))
-                filer = st.selectbox(
+                form = ui.selectbox("Form", spm.forms(ver))
+                filer = ui.selectbox(
                     "Filled by",
                     spm.filers(form),
                     format_func=lambda f: f.name,
@@ -44,15 +42,15 @@ def page():
             with hori():
                 with vert():
                     for s in left_forms:
-                        raw[s] = st.number_input(scores[s], step=1)
+                        raw[s] = ui.number_input(scores[s], step=1)
 
                 with vert():
                     for s in right_forms:
-                        raw[s] = st.number_input(scores[s], step=1)
+                        raw[s] = ui.number_input(scores[s], step=1)
 
             name = None
             if not ver1():
-                name = st.text_input("Name")
+                name = ui.text_input("Name")
 
         with vert():
             res, rep = spm.process(asmt, form, ver, filer, name, raw)

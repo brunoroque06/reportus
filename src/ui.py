@@ -1,11 +1,19 @@
 import datetime
 from collections.abc import Callable
+from functools import partial
 from typing import Any, Literal
 
 import streamlit as st
 
 from src.table import Table
 from src.time import Delta, minus_delta, to_delta, today
+
+date_input = partial(st.date_input, format="DD.MM.YYYY", width=120)
+markdown = partial(st.markdown)
+multiselect = partial(st.multiselect, width=380)
+number_input = partial(st.number_input, width=140)
+selectbox = partial(st.selectbox, width=120)
+text_input = partial(st.text_input)
 
 
 def header(title: str):
@@ -29,10 +37,6 @@ def structure(title: str):
     return hori, vert
 
 
-def date_input(label: str, date: datetime.date, key: str | None = None, **kwargs: Any):
-    return st.date_input(label, date, format="DD.MM.YYYY", key=key, **kwargs)
-
-
 Color = Literal["blue", "green", "red"]
 
 
@@ -47,20 +51,20 @@ def dates(
         asmt = date_input(
             "Assessment", date, key=f"{key}_asmt" if key else None, max_value=date
         )
-        with vert():
-            birth = date_input(
-                "Birthday",
-                minus_delta(
-                    asmt, Delta(years=min_years + int((max_years - min_years) / 2))
-                ),
-                key=f"{key}_birth" if key else None,
-                max_value=minus_delta(asmt, Delta(min_years)),
-                min_value=minus_delta(asmt, Delta(years=max_years - 1, days=364)),
-            )
-            age = to_delta(birth, asmt)
-            age_disp = f"{age.years} years {age.months} months {age.days} days"
-            color = disp(age)
-            st.badge(age_disp, color=color, icon=":material/cake:")
+        birth = date_input(
+            "Birthday",
+            minus_delta(
+                asmt, Delta(years=min_years + int((max_years - min_years) / 2))
+            ),
+            key=f"{key}_birth" if key else None,
+            max_value=minus_delta(asmt, Delta(min_years)),
+            min_value=minus_delta(asmt, Delta(years=max_years - 1, days=364)),
+        )
+
+    age = to_delta(birth, asmt)
+    age_disp = f"{age.years} years {age.months} months {age.days} days"
+    color = disp(age)
+    st.badge(age_disp, color=color, icon=":material/cake:")
 
     return asmt, birth, age
 

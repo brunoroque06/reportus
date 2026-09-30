@@ -3,9 +3,12 @@ import datetime
 import itertools
 import math
 import typing
+from typing import Literal
 
 from src import string, table, time, ui
 from src.operator import ge, gt, le
+
+Hand = Literal["Left", "Right"]
 
 
 @dataclasses.dataclass(frozen=True)
@@ -172,7 +175,7 @@ def process(
     age: time.Delta,
     raw: dict[str, int | None],
     asmt: datetime.date,
-    hand: str = "Right",
+    hand: Hand = "Right",
 ) -> tuple[table.Table[CompResultRow], table.Table[AggResultRow], str]:
     map_i, map_t = _load()
 
@@ -204,7 +207,7 @@ def process(
 
 
 def report(
-    asmt: datetime.date, age: time.Delta, hand: str, agg: table.Table[AggResultRow]
+    asmt: datetime.date, age: time.Delta, hand: Hand, agg: table.Table[AggResultRow]
 ) -> str:
     if age.years < 7:
         group = "3-6"
