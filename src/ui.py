@@ -1,5 +1,5 @@
 import datetime
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from functools import partial
 from typing import Any, Literal
 
@@ -12,12 +12,15 @@ date_input = partial(st.date_input, format="DD.MM.YYYY", width=120)
 markdown = partial(st.markdown)
 multiselect = partial(st.multiselect, width=380)
 number_input = partial(st.number_input, width=140)
-selectbox = partial(st.selectbox, width=120)
 text_input = partial(st.text_input)
 
 
 def header(title: str):
     st.subheader(title)
+
+
+def selectbox[T](label: str, opts: Sequence[T], **kwargs: Any) -> T:
+    return st.selectbox(label, opts, width=120, **kwargs)
 
 
 def hori():

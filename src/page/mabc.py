@@ -2,6 +2,7 @@ from collections.abc import Callable
 
 from src import ui
 from src.report import mabc
+from src.report.mabc import Hand
 from src.time import Delta
 
 
@@ -24,7 +25,7 @@ def page():
             comp_ids = list(comps.keys())
 
             with hori():
-                hand = ui.selectbox("Preferred Hand", ("Right", "Left"))
+                hand: Hand = ui.selectbox("Preferred Hand", ("Right", "Left"))
                 failed = ui.multiselect(
                     "Failed", mabc.get_failed(), format_func=str.upper
                 )

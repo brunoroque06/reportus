@@ -1,7 +1,9 @@
+from collections.abc import Callable
 from typing import Literal
 
 from src import ui
 from src.report import spm
+from src.report.spm import Filer
 from src.time import today
 
 
@@ -20,10 +22,11 @@ def page():
                 asmt = ui.date_input("Assessment", date, key="spm", max_value=date)
             with hori():
                 form = ui.selectbox("Form", spm.forms(ver))
+                filer_fmt: Callable[[Filer], str] = lambda f: f.name
                 filer = ui.selectbox(
                     "Filled by",
                     spm.filers(form),
-                    format_func=lambda f: f.name,
+                    format_func=filer_fmt,
                 )
 
             scores = spm.get_scores()
