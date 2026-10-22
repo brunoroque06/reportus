@@ -2,14 +2,14 @@
 name = "reportus"
 version = "0.1.0"
 dependencies = [
-  "streamlit==1.65.0",
+  "streamlit==1.66.1",
 ]
 
 [dependency-groups]
 dev = [
-  "pyrefly==1.3.2",
+  "pyrefly==1.4.0",
   "pytest==9.1.1",
-  "ruff==0.16.10",
+  "ruff==0.17.1",
   "watchdog==6.0.0",
 ]
 
