@@ -1,6 +1,6 @@
 import calendar
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 
 
 def format_date(dat: date, day: bool = True) -> str:
@@ -15,7 +15,7 @@ class Delta:
 
 
 def today() -> date:
-    return datetime.now(tz=timezone.utc).today()
+    return datetime.now(tz=UTC).today()
 
 
 def to_delta(start: date, end: date) -> Delta:
